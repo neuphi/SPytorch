@@ -1,16 +1,11 @@
 #!/usr/bin/python3
-
 # -*- coding: utf-8 -*-
 
-import torch
 import numpy as np
 
-# N is batch size; D_in is input dimension;
-# H is hidden dimension; D_out is output dimension.
+N, D_in, H, D_out, N_val = 5050, 2, 8, 1, 59
 
-N, D_in, H, D_out = 5050, 2, 8, 2
-
-# Create random Tensors to hold inputs and outputs
+#import torch
 
 model = torch.nn.Sequential(
     torch.nn.Linear(D_in, H),
@@ -24,55 +19,53 @@ loss_fn = torch.nn.MSELoss(size_average=False)
 learning_rate = 1e-4
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-
-
-print ( "Now loading data" )
 import pickle
+print("\nloading data ..")
 f=open("data/data.pcl","rb")
 tr_data=pickle.load ( f )
 tr_labels=pickle.load ( f )
 val_data=pickle.load ( f )
 val_labels=pickle.load ( f )
 f.close()
+print("  done")
 
-len_tr_x = len(tr_data)
-len_tr_y = len(tr_data[0])
-len_val_x = len(val_data)
-len_val_y = len(val_data[0])
+tr_data_torch    = torch.zeros(N, D_in)
+tr_labels_torch  = torch.zeros(N, D_out)
+val_data_torch   = torch.zeros(N_val, D_in)
+val_labels_torch = torch.zeros(N_val, D_out)
 
-tr_data_torch      = torch.zeros(len_tr_x, len_tr_y)
-tr_labels_torch    = torch.zeros(len_tr_x, len_tr_y)
-val_data_torch     = torch.zeros(len_val_x, len_val_y)
-val_labels_torch   = torch.zeros(len_val_x, len_val_y)
-
-for i in range(len_tr_x):
+for i in range(N):
 	tr_data_torch[i]   = torch.from_numpy(tr_data[i])
 	tr_labels_torch[i] = tr_labels[i]
 
-for i in range(len_val_x):
+for i in range(N_val):
 	val_data_torch[i]   = torch.from_numpy(val_data[i])
 	val_labels_torch[i] = val_labels[i]
 
-
-#def hash ( A ):
-#    return int(A[0]*10000.+A[1])
-
-#X={}
-#for d,l in zip (tr_data,tr_labels):
-#    X[hash(d)]=l
-
-
-print ( "Now fitting ... " )
+print("\nfitting ..")
 for t in range(1000):
 
     labels_pred = model(tr_data_torch)
 
     loss = loss_fn(labels_pred, tr_labels_torch)
-    print(t, loss.item())
+    #print(t, loss.item())
 
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
+print("  done")
+
+print("\nloss:", loss.item())
+
+print("\nprinting tensors ..")
+torch.set_printoptions(threshold=50)
+for item in [tr_data_torch,tr_labels_torch,val_data_torch,val_labels_torch,labels_pred]:
+    print("\nlen=",len(item))
+    print(item)
+
+
+    
+
 
 
 #print ( "Done fitting" )
