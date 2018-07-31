@@ -1,52 +1,39 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import glovar
 import numpy as np
-
-N, D_in, H, D_out, N_val = 5050, 2, 8, 1, 59
-
-#import torch
+from misc import *
+import torch
 
 model = torch.nn.Sequential(
-    torch.nn.Linear(D_in, H),
+    torch.nn.Linear(DIM_IN, LAYERS_HIDDEN),
     torch.nn.ReLU(),
-	torch.nn.ReLU(),
-	torch.nn.ReLU(),
-    torch.nn.Linear(H, D_out),
+    torch.nn.Linear(LAYERS_HIDDEN, DIM_OUT),
 )
 loss_fn = torch.nn.MSELoss(size_average=False)
 
-learning_rate = 1e-4
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARN_RATE)
 
-import pickle
-print("\nloading data ..")
-f=open("data/data.pcl","rb")
-tr_data=pickle.load ( f )
-tr_labels=pickle.load ( f )
-val_data=pickle.load ( f )
-val_labels=pickle.load ( f )
-f.close()
-print("  done")
+tr_data,tr_labels,val_data,val_labels = loadData()
 
-tr_data_torch    = torch.zeros(N, D_in)
-tr_labels_torch  = torch.zeros(N, D_out)
-val_data_torch   = torch.zeros(N_val, D_in)
-val_labels_torch = torch.zeros(N_val, D_out)
+tr_data_torch    = torch.zeros(BATCH_SIZE, DIM_IN)
+tr_labels_torch  = torch.zeros(BATCH_SIZE, DIM_OUT)
+val_data_torch   = torch.zeros(BATCH_SIZE_VAL, DIM_IN)
+val_labels_torch = torch.zeros(BATCH_SIZE_VAL, DIM_OUT)
 
-for i in range(N):
+for i in range(BATCH_SIZE):
 	tr_data_torch[i]   = torch.from_numpy(tr_data[i])
 	tr_labels_torch[i] = tr_labels[i]
 
-for i in range(N_val):
+for i in range(BATCH_SIZE_VAL):
 	val_data_torch[i]   = torch.from_numpy(val_data[i])
 	val_labels_torch[i] = val_labels[i]
 
 print("\nfitting ..")
-for t in range(1000):
+for t in range(EPOCH_NUM):
 
     labels_pred = model(tr_data_torch)
-
     loss = loss_fn(labels_pred, tr_labels_torch)
     #print(t, loss.item())
 
@@ -60,8 +47,7 @@ print("\nloss:", loss.item())
 print("\nprinting tensors ..")
 torch.set_printoptions(threshold=50)
 for item in [tr_data_torch,tr_labels_torch,val_data_torch,val_labels_torch,labels_pred]:
-    print("\nlen=",len(item))
-    print(item)
+    print("\nlen=", len(item), "\n", item)
 
 
     

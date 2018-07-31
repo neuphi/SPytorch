@@ -1,19 +1,15 @@
 #!/usr/bin/python3
 
+from glovar import *
+from misc import *
 import numpy as np
 import keras.models
 import random
 import time
-
-print ( "Now loading database" )
-from smodels.experiment.databaseObj import Database
-database=Database("database/")
 from smodels.tools.physicsUnits import GeV, fb
 
-expres = database.getExpResults( analysisIDs=["CMS-PAS-SUS-12-026"] )[0]
-model = keras.models.load_model ( "data/model.h5")
-
-print ( "Done loading database" )
+expres = getExpRes(EXP)
+model = keras.models.load_model(PATH_DATA + "model.h5")
 
 masses, massesG = [], []
 
@@ -27,7 +23,7 @@ print ( "Full ... " )
 t0=time.time()
 ulF,ulK,ulC=[],[],[]
 for m in massesG:
-    ul = expres.getUpperLimitFor ( txname="T1tttt", mass=m )
+    ul = expres.getUpperLimitFor ( txname=TX, mass=m )
     ulF.append ( ul )
 t1=time.time()
 print ( "Keras batch ... " )

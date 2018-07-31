@@ -1,20 +1,13 @@
 #!/usr/bin/python3
 
+from glovar import *
+from misc import *
 import matplotlib.pyplot as plt
 import numpy as np
 import keras.models
 
-print ( "Now loading data" )
-import pickle
-f=open("data/data.pcl","rb")
-tr_data=pickle.load ( f )
-tr_labels=pickle.load ( f )
-val_data=pickle.load ( f )
-val_labels=pickle.load ( f )
-f.close()
+tr_data,tr_labels,val_data,val_labels = loadData()
 
-def Hash ( A ):
-    return int(A[0]*10000.+A[1])
 X={}
 for d,l in zip (tr_data,tr_labels):
     X[Hash(d)]=l
@@ -26,7 +19,7 @@ for i in range ( 600, 1000, 10 ):
 mass = np.array( masses )
 pX, pY, pYm = [], [], []
 
-model = keras.models.load_model ( "data/model.h5")
+model = keras.models.load_model ( PATH_DATA + "model.h5")
 preds=model.predict ( mass )
 
 for m,p in zip(mass,preds):
@@ -40,7 +33,7 @@ for m,p in zip(mass,preds):
 plt.figure(0)
 plt.scatter ( pX, pY )
 plt.scatter ( pX, pYm, c='r' )
-plt.savefig ( "analysis/plots/plot.png" )
+plt.savefig ( PATH_PLOTS + "plot.png" )
 
 #preds=model.predict ( mass )
 #print ( "Now predict" )
@@ -74,16 +67,14 @@ for mother in range ( 600, 1000, 10 ):
 Heat_diff = (np.array(Heat_pred) - np.array(Heat_calc))#**2 #quadratischer Fehler
 
 plt.imshow(Heat_calc)
-plt.savefig("analysis/plots/heatcalc.png")
+plt.savefig(PATH_PLOTS + "heatcalc.png")
 plt.imshow(Heat_pred)
-plt.savefig("analysis/plots/heatpred.png")
+plt.savefig(PATH_PLOTS + "heatpred.png")
 plt.imshow(Heat_diff)
-plt.savefig("analysis/plots/heatdiff.png")
+plt.savefig(PATH_PLOTS + "heatdiff.png")
 
 plt.figure(1)
 plt.plot([i*10 for i in range(40)], Heat_calc[20])
 plt.plot([i*10 for i in range(40)], Heat_pred[20], c = 'r')
 plt.plot([i*10 for i in range(40)], Heat_diff[20], c = 'g')
-plt.savefig("analysis/plots/slice.png")
-
-
+plt.savefig(PATH_PLOTS + "slice.png")
