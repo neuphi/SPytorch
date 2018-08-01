@@ -1,17 +1,34 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import glovar
+from glovar import *
 import numpy as np
 from misc import *
 import torch
 
-model = torch.nn.Sequential(
-    torch.nn.Linear(DIM_IN, LAYERS_HIDDEN),
-    torch.nn.ReLU(),
-    torch.nn.Linear(LAYERS_HIDDEN, DIM_OUT),
-)
-loss_fn = torch.nn.MSELoss(size_average=False)
+import torch.nn as nn
+import torch.nn.functional as F
+
+class Net(nn.Module):
+    def __init__(self):
+        #super(Net, self).__init__()
+        super().__init__()
+        self.hidden1 = nn.Linear(DIM_IN, DIM_HIDDEN_1)
+        self.hidden2 = nn.Linear(DIM_HIDDEN_1, DIM_HIDDEN_2)
+        self.hidden3 = nn.Linear(DIM_HIDDEN_2, DIM_HIDDEN_3)
+        self.out     = nn.Linear(DIM_HIDDEN_3, DIM_OUT)
+
+    def forward(self, x):
+        x = F.relu(self.hidden1(x))
+        x = F.tanh(self.hidden2(x))
+        x = F.tanh(self.hidden3(x))
+        x = self.out(x)
+        return x
+
+model = Net()
+print("\n",model)
+
+loss_fn = nn.MSELoss(size_average=False)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARN_RATE)
 
@@ -63,3 +80,4 @@ for item in [tr_data_torch,tr_labels_torch,val_data_torch,val_labels_torch,label
 
 #model.save("data/model.h5")
 #model.save_weights("data/weights.h5")
+

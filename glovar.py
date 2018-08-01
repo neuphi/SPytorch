@@ -18,7 +18,9 @@ TX  = "T1tttt"
 
 BATCH_SIZE     = 5050
 DIM_IN         = 2
-LAYERS_HIDDEN  = 4
+DIM_HIDDEN_1   = 4
+DIM_HIDDEN_2   = 16
+DIM_HIDDEN_3   = 4
 DIM_OUT        = 1
 BATCH_SIZE_VAL = 59
 LEARN_RATE     = 1e-4
