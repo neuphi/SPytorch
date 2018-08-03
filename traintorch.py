@@ -19,16 +19,17 @@ class Net(nn.Module):
         self.out     = nn.Linear(DIM_HIDDEN_3, DIM_OUT)
 
     def forward(self, x):
-        x = F.relu(self.hidden1(x))
-        x = F.tanh(self.hidden2(x))
-        x = F.tanh(self.hidden3(x))
+        x = self.hidden1(x)
+        x = self.hidden2(x)
+        x = self.hidden3(x)
         x = self.out(x)
         return x
 
 model = Net()
 print("\n",model)
 
-loss_fn = nn.MSELoss(size_average=False)
+loss_fn = nn.L1Loss(size_average=None, reduce=None, reduction='elementwise_mean')
+#loss_fn = nn.MSELoss(size_average=True)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARN_RATE)
 
