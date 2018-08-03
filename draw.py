@@ -5,6 +5,7 @@ from misc import *
 import matplotlib.pyplot as plt
 import numpy as np
 import keras.models
+import torch
 
 tr_data,tr_labels,val_data,val_labels = loadData()
 
@@ -19,8 +20,8 @@ for i in range ( 600, 1000, 10 ):
 mass = np.array( masses )
 pX, pY, pYm = [], [], []
 
-model = keras.models.load_model ( PATH_DATA + "model.h5")
-preds=model.predict ( mass )
+model = torch.load( PATH_DATA + "model.h5")
+preds = model(mass.type(torch.FloatTensor))
 
 for m,p in zip(mass,preds):
     try:

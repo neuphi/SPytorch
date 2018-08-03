@@ -28,8 +28,11 @@ class Net(nn.Module):
 model = Net()
 print("\n",model)
 
-loss_fn = nn.L1Loss(size_average=None, reduce=None, reduction='elementwise_mean')
-#loss_fn = nn.MSELoss(size_average=True)
+loss_fn = nn.L1Loss(size_average=True, reduce=True, reduction='none')
+#loss_fn = nn.MSELoss(size_average=True, reduce=True, reduction='elementwise_mean')
+#loss_fn = nn.CrossEntropyLoss(weight=None, size_average=True, reduce=True, reduction='elementwise_mean')
+#loss_fn = nn.NLLLoss(weight=None, size_average=True, reduce=True, reduction='elementwise_mean')
+#loss_fn = nn.PoissonNLLLoss(log_input=False, full=False, size_average=None, eps=1e-08, reduce=None, reduction='elementwise_mean')
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARN_RATE)
 
@@ -49,7 +52,11 @@ for i in range(BATCH_SIZE_VAL):
 	val_labels_torch[i] = val_labels[i]
 
 print("\nfitting ..")
-for t in range(EPOCH_NUM):
+err      = 1e5
+loss_old = 1e5
+epoch    = 1
+#for t in range(EPOCH_NUM):
+while err > ERROR_TRESHHOLD and epoch < EPOCH_NUM+1:
 
     labels_pred = model(tr_data_torch)
     loss = loss_fn(labels_pred, tr_labels_torch)
@@ -58,13 +65,25 @@ for t in range(EPOCH_NUM):
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
+    
+    epoch   += 1
+    loss     = loss.item()
+    err      = abs(loss - loss_old)
+    loss_old = loss
 print("  done")
+if err == EPOCH_NUM:
+    print("\nFailed to reach convergence.")
+else:
+    print("\nConvergence reached after", epoch, "iterations")
 
-print("\nloss:", loss.item())
+#model.state_dict(PATH_DATA + "model.h5", prefix = '', keep_vars = False)
+#torch.save(model, PATH_DATA + "model.h5")
+#print("\nloss:", loss.item())
 
 print("\nprinting tensors ..")
 torch.set_printoptions(threshold=50)
-for item in [tr_data_torch,tr_labels_torch,val_data_torch,val_labels_torch,labels_pred]:
+#for item in [tr_data_torch,tr_labels_torch,val_data_torch,val_labels_torch,labels_pred]:
+for item in [val_labels_torch,labels_pred]:
     print("\nlen=", len(item), "\n", item)
 
 
@@ -79,6 +98,6 @@ for item in [tr_data_torch,tr_labels_torch,val_data_torch,val_labels_torch,label
 #for m,p in zip ( mass,preds ):
 #    print ( "%s -> %s, %s" % ( m,p[0], X[hash(m)] ) )
 
-#model.save("data/model.h5")
+
 #model.save_weights("data/weights.h5")
 
