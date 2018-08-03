@@ -5,21 +5,35 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from misc import *
+from glovar import *
+
+import torch.nn as nn
+import torch.nn.functional as F
+
+###################### DEFINE CLASS ##############################
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        #super().__init__()
+        self.hidden1 = nn.Sequential(nn.Linear(DIM_IN, DIM_HIDDEN_1), nn.ReLU())
+        self.hidden2 = nn.Sequential(nn.Linear(DIM_HIDDEN_1, DIM_HIDDEN_2), nn.ReLU())
+        self.hidden3 = nn.Sequential(nn.Linear(DIM_HIDDEN_2, DIM_HIDDEN_3), nn.ReLU())
+        self.out = nn.Linear(DIM_HIDDEN_3, DIM_OUT)
+
+    def forward(self, x):
+        x = self.hidden1(x)
+        x = self.hidden2(x)
+        x = self.hidden3(x)
+        x = self.out(x)
+        return x
 
 ########## LOAD DATABASE ##############################
 
-print ( "Now loading data" )
-import pickle
-f=open("data/data.pcl","rb")
-tr_data=pickle.load ( f )
-tr_labels=pickle.load ( f )
-val_data=pickle.load ( f )
-val_labels=pickle.load ( f )
-f.close()
+tr_data,tr_labels,val_data,val_labels = loadData()
 
-def Hash ( A ):           #define hash dictionary
-    return int(A[0]*10000.+A[1])
-X={}
+X={} #create dictionary
 for d,l in zip (tr_data,tr_labels):
     X[Hash(d)]=l
 
@@ -38,7 +52,8 @@ pX, pY, pYm = [], [], []
 
 ##### Load the model and make predictions ##############
 
-model = torch.load("data/torchmodel.h5")
+model = Net()
+model.load_state_dict(torch.load("data/torchmodel.h5"))
 preds=model ( mass.type(torch.FloatTensor) )
 
 #### Create a tupel list with mass and predictions #####
