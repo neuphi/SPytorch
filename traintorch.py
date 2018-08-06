@@ -2,34 +2,36 @@
 # -*- coding: utf-8 -*-
 
 from glovar import *
-import numpy as np
 from misc import *
-import torch
+import numpy as np
+import matplotlib.pyplot as plt
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 class Net(nn.Module):
     def __init__(self):
-        #super(Net, self).__init__()
         super().__init__()
-        self.hidden1 = nn.Linear(DIM_IN, DIM_HIDDEN_1)
-        self.hidden2 = nn.Linear(DIM_HIDDEN_1, DIM_HIDDEN_2)
-        self.hidden3 = nn.Linear(DIM_HIDDEN_2, DIM_HIDDEN_3)
-        self.out     = nn.Linear(DIM_HIDDEN_3, DIM_OUT)
+        self.layer1 = nn.Linear(DIM_IN, DIM_HIDDEN_1)
+        #self.layer2 = nn.Linear(DIM_HIDDEN_1, DIM_HIDDEN_2)
+        #self.layer3 = nn.Linear(DIM_HIDDEN_2, DIM_HIDDEN_3)
+        self.layer2 = nn.ReLU()
+        self.layer3 = nn.ReLU()
+        self.out    = nn.Linear(DIM_HIDDEN_3, DIM_OUT)
 
     def forward(self, x):
-        x = self.hidden1(x)
-        x = self.hidden2(x)
-        x = self.hidden3(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
         x = self.out(x)
         return x
 
 model = Net()
 print("\n",model)
 
-loss_fn = nn.L1Loss(size_average=True, reduce=True, reduction='none')
-#loss_fn = nn.MSELoss(size_average=True, reduce=True, reduction='elementwise_mean')
+#loss_fn = nn.L1Loss(size_average=True, reduce=True, reduction='none')
+loss_fn = nn.MSELoss(size_average=True, reduce=True, reduction='elementwise_mean')
 #loss_fn = nn.CrossEntropyLoss(weight=None, size_average=True, reduce=True, reduction='elementwise_mean')
 #loss_fn = nn.NLLLoss(weight=None, size_average=True, reduce=True, reduction='elementwise_mean')
 #loss_fn = nn.PoissonNLLLoss(log_input=False, full=False, size_average=None, eps=1e-08, reduce=None, reduction='elementwise_mean')
@@ -38,8 +40,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LEARN_RATE)
 
 tr_data,tr_labels,val_data,val_labels = loadData()
 
-tr_data_torch    = torch.zeros(BATCH_SIZE, DIM_IN)
-tr_labels_torch  = torch.zeros(BATCH_SIZE, DIM_OUT)
+tr_data_torch    = torch.zeros(BATCH_SIZE,     DIM_IN)
+tr_labels_torch  = torch.zeros(BATCH_SIZE,     DIM_OUT)
 val_data_torch   = torch.zeros(BATCH_SIZE_VAL, DIM_IN)
 val_labels_torch = torch.zeros(BATCH_SIZE_VAL, DIM_OUT)
 
@@ -54,9 +56,12 @@ for i in range(BATCH_SIZE_VAL):
 print("\nfitting ..")
 err      = 1e5
 loss_old = 1e5
-epoch    = 1
-#for t in range(EPOCH_NUM):
-while err > ERROR_TRESHHOLD and epoch < EPOCH_NUM+1:
+epoch    = 0
+
+loss_plot_x = []
+loss_plot_y = []
+
+while err > ERROR_TRESHOLD and epoch < EPOCH_NUM:
 
     labels_pred = model(tr_data_torch)
     loss = loss_fn(labels_pred, tr_labels_torch)
@@ -66,19 +71,22 @@ while err > ERROR_TRESHHOLD and epoch < EPOCH_NUM+1:
     loss.backward()
     optimizer.step()
     
+    loss_plot_x.append(epoch)
+    loss_plot_y.append(loss)
+    
     epoch   += 1
     loss     = loss.item()
-    err      = abs(loss - loss_old)
+    err      = abs(1. - loss / loss_old)
     loss_old = loss
+    
 print("  done")
-if err == EPOCH_NUM:
+if epoch == EPOCH_NUM:
     print("\nFailed to reach convergence.")
 else:
-    print("\nConvergence reached after", epoch, "iterations")
+    print("\nConvergence reached after", epoch, "iterations.")
+print("  final loss:", loss)
 
-#model.state_dict(PATH_DATA + "model.h5", prefix = '', keep_vars = False)
-#torch.save(model, PATH_DATA + "model.h5")
-#print("\nloss:", loss.item())
+torch.save(model.state_dict(),PATH_DATA + "torchmodel.h5")
 
 print("\nprinting tensors ..")
 torch.set_printoptions(threshold=50)
@@ -87,7 +95,12 @@ for item in [val_labels_torch,labels_pred]:
     print("\nlen=", len(item), "\n", item)
 
 
-    
+plt.figure(0)
+plt.title('loss function', fontsize=20)
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.plot(loss_plot_x,loss_plot_y)
+plt.show()
 
 
 

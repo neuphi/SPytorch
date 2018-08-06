@@ -9,7 +9,7 @@ import time
 from smodels.tools.physicsUnits import GeV, fb
 
 expres = getExpRes(EXP)
-model = keras.models.load_model(PATH_DATA + "model.h5")
+model  = keras.models.load_model(PATH_DATA + "model.h5")
 
 masses, massesG = [], []
 

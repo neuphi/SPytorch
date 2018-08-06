@@ -22,9 +22,9 @@ DIM_HIDDEN_1    = 4
 DIM_HIDDEN_2    = 16
 DIM_HIDDEN_3    = 4
 DIM_OUT         = 1
-BATCH_SIZE_VAL  = 59
+BATCH_SIZE_VAL  = 57
 LEARN_RATE      = 1e-3
-EPOCH_NUM       = 100
-ERROR_TRESHHOLD = 1e-2
+EPOCH_NUM       = 800
+ERROR_TRESHOLD  = 0.5e-2
 
 ############

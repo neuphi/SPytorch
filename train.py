@@ -4,6 +4,8 @@ import os
 os.environ["KERAS_BACKEND"] = "tensorflow"
 import numpy as np
 
+from glovar import *
+from misc   import *
 from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Input
 from keras import callbacks
@@ -51,10 +53,7 @@ model.summary()
 model.compile ( loss="mean_squared_error", optimizer="adam", metrics=["mse"] )
 # model.compile ( loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"] )
 
-print ("loading data")
-from misc import *
 tr_data,tr_labels,val_data,val_labels = loadData()
-print("  done")
 
 X={}
 for d,l in zip (tr_data,tr_labels):
@@ -73,7 +72,7 @@ mass = np.array( [ [ 600, 200 ], [ 700, 200 ], [ 800, 200 ], [ 900, 200 ], [ 100
 preds=model.predict ( mass )
 print ( "Now predict" ) 
 for m,p in zip ( mass,preds ):
-    print ( "%s -> %s, %s" % ( m,p[0], X[hash(m)] ) )
+    print ( "%s -> %s, %s" % ( m,p[0], X[Hash(m)] ) )
 
 model.save(PATH_DATA + "model.h5")
 model.save_weights(PATH_DATA + "weights.h5")

@@ -5,7 +5,6 @@ from misc import *
 import matplotlib.pyplot as plt
 import numpy as np
 import keras.models
-import torch
 
 tr_data,tr_labels,val_data,val_labels = loadData()
 
@@ -20,8 +19,8 @@ for i in range ( 600, 1000, 10 ):
 mass = np.array( masses )
 pX, pY, pYm = [], [], []
 
-model = torch.load( PATH_DATA + "model.h5")
-preds = model(mass.type(torch.FloatTensor))
+model = keras.models.load_model ( PATH_DATA + "model.h5")
+preds = model.predict(mass)
 
 for m,p in zip(mass,preds):
     try:
@@ -32,9 +31,9 @@ for m,p in zip(mass,preds):
         pass
 
 plt.figure(0)
-plt.scatter ( pX, pY )
-plt.scatter ( pX, pYm, c='r' )
-plt.savefig ( PATH_PLOTS + "plot.png" )
+plt.scatter(pX, pY)
+plt.scatter(pX, pYm, c='r')
+plt.savefig(PATH_PLOTS + "plot.png")
 
 #preds=model.predict ( mass )
 #print ( "Now predict" )
@@ -52,8 +51,8 @@ for mother in range ( 600, 1000, 10 ):
     Hpreds = []
     for lsp in range (0, 400, 10 ):
         Hmasses.append ( [ mother, lsp ] )
-    Hmass = np.array( Hmasses )
-    Hpreds=model.predict ( Hmass )
+    Hmass  = np.array( Hmasses )
+    Hpreds = model.predict ( Hmass )
     j=0    
     for m in Hmass:
         try:
