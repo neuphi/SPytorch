@@ -11,24 +11,6 @@ from glovar import *
 import torch.nn as nn
 import torch.nn.functional as F
 
-###################### DEFINE CLASS ##############################
-
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        #super().__init__()
-        self.hidden1 = nn.Sequential(nn.Linear(DIM_IN, DIM_HIDDEN_1), nn.ReLU())
-        self.hidden2 = nn.Sequential(nn.Linear(DIM_HIDDEN_1, DIM_HIDDEN_2), nn.ReLU())
-        self.hidden3 = nn.Sequential(nn.Linear(DIM_HIDDEN_2, DIM_HIDDEN_3), nn.ReLU())
-        self.out = nn.Linear(DIM_HIDDEN_3, DIM_OUT)
-
-    def forward(self, x):
-        x = self.hidden1(x)
-        x = self.hidden2(x)
-        x = self.hidden3(x)
-        x = self.out(x)
-        return x
-
 ########## LOAD DATABASE ##############################
 
 tr_data,tr_labels,val_data,val_labels = loadData()
