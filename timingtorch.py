@@ -67,7 +67,7 @@ print ("Time Pytorch", t2-t1 )
 print ("Time Batch", t3-t2 )
 print ("Time Chunk", t4-t3 )
 
-f = open("analysis/time/timepytorch","w") 
+f = open("analysis/timepytorch.txt","w") 
 
 f.write("SIM_DATA_SIZE " + str(SIM_DATA_SIZE) + "\n \n")
 f.write("Time Full    " + str(t1-t0) + "\n") 

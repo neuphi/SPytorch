@@ -12,7 +12,7 @@ from glovar import *
 import torch.nn as nn
 import torch.nn.functional as F
 
-import visdom
+#import visdom
 import matplotlib.pyplot as plt
 
 from torch.utils.data import DataLoader as DataLoader
@@ -91,10 +91,13 @@ print ( "Done fitting" )
 
 ################# VISUALIZE LOSS ##################################
 
+if loss_plot_y[0] > loss_plot_y[1] * 2:
+    loss_plot_y[0] = loss_plot_y[1]
+
 plt.figure(0)  
 plt.title('Loss Function', fontsize=20)
 plt.xlabel('Epochs')
-plt.ylabel('Value of Loss Function')
+plt.ylabel('Mean Squared Error')
 plt.plot(loss_plot_x, loss_plot_y)
 plt.savefig("analysis/plots/loss.png")
 
