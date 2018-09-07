@@ -116,7 +116,7 @@ plt.savefig("analysis/plots/heatdiff.png")
 ###the curves next to each other for one lsp(slice)
 plt.figure(1)         
 plt.title(r'Upper Limit vs LSP', fontsize=20)
-plt.text(170, 18, 'analysis ID: ' + str(ANALYSIS_ID) + '\ntopology: ' + str(TXNAME) + '\nmass mother: 600 GeV', style='italic',
+plt.text(170, 18, 'analysis ID: ' + str(ANALYSIS_ID) + '\ntopology: ' + str(TXNAME) + '\nmass mother: 800 GeV', style='italic',
         bbox={'facecolor':'gray', 'alpha':0.2, 'pad':10})
 plt.xlabel('Mass LSP [GeV]')
 plt.ylabel('Upper Limits (UL) [fb]')
