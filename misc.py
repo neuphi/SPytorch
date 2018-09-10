@@ -2,6 +2,7 @@ from glovar import *
 import pickle
 from smodels.experiment.databaseObj import Database
 from smodels.tools.physicsUnits import GeV, fb
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -55,3 +56,7 @@ def loadData():
 def Hash ( A ):
     return int(A[0]*10000.+A[1])
 
+def hyperloss(time, loss, intloss):
+  a=1     #some finetuning is possible with the a,b parameters
+  b=10
+  return a*time + np.exp(b*(loss-intloss))
