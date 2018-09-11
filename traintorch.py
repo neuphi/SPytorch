@@ -75,8 +75,8 @@ for t in range(EPOCH_NUM):
         inputs[j][0] = data[j][0]
         inputs[j][1] = data[j][1]
         labels[j]    = data[j][2]
-      labels_pred = model(tr_data_torch)
-      loss = loss_fn(labels_pred, tr_labels_torch)
+      labels_pred = model(inputs)
+      loss = loss_fn(labels_pred, labels)
 
       optimizer.zero_grad()
       loss.backward()

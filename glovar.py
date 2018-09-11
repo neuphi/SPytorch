@@ -12,8 +12,8 @@ TXNAME        = "T1tttt"
 
 # SPLIT INFORMATION
 
-#SPLIT_CHOOSE = 1   #1 for split, 0 for no split
-#SPLIT = [60, 20, 20]
+SPLIT_CHOOSE = 1   #1 for split, 0 for no split
+SPLIT = [80, 0, 20]   #train/val/test
 
 ############
 
@@ -26,7 +26,7 @@ TX  = "T1tttt"
 
 # CONFIGURE PYTORCH
 
-BATCH_SIZE     = 50
+BATCH_SIZE     = 32
 DIM_IN         = 2
 DIM_HIDDEN_1   = 4
 DIM_HIDDEN_2   = 16
@@ -41,7 +41,7 @@ EPOCH_NUM      = 100
 # HYPERPARAMETERS
 
 INT_LOSS_SQ = 25
-HID_LAY_MAX = 16
+HID_LAY_MAX = 8
 HID_LAY_MIN = 1
-NOD_MAX = 32
+NOD_MAX = 20
 NOD_MIN = 4

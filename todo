@@ -1,0 +1,7 @@
+datentypen für toplist file fixen
+
+hyperloss muss überall streng monoton wachsend sein
+
+loops für minibatch, lossfn, activfn, slope, optimizer
+
+loss plots in toplist speichern
