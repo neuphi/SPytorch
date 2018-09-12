@@ -56,7 +56,3 @@ def loadData():
 def Hash ( A ):
     return int(A[0]*10000.+A[1])
 
-def hyperloss(time, loss, intloss):
-  a=1     #some finetuning is possible with the a,b parameters
-  b=10
-  return a*time + np.exp(b*(loss-intloss))

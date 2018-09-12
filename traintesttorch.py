@@ -58,9 +58,10 @@ toplist = []
 #activf = ['linear','relu','tanh','sigmoid','linz']
 #minibatchsize = [1,4,16,64,256]
 #slope = [lin, ramp, trap]
+#learning rate!
 
-for layers in range(HID_LAY_MIN,HID_LAY_MAX,int(round((HID_LAY_MAX-HID_LAY_MIN)/2))):
-  for nodes in range(NOD_MIN, NOD_MAX, int(round((NOD_MAX-NOD_MIN)/2))):
+for layers in range(HID_LAY_MIN,HID_LAY_MAX+1,HID_LAY_STEP):
+  for nodes in range(NOD_MIN, NOD_MAX+1,NOD_STEP):
     #initialize net
     hyp["layer"] = layers
     hyp["nodes"] = nodes
@@ -71,6 +72,10 @@ for layers in range(HID_LAY_MIN,HID_LAY_MAX,int(round((HID_LAY_MAX-HID_LAY_MIN)/
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARN_RATE)
     #define trainloader
     trainloader = DataLoader(tr_all, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+    #initialize loss lists
+    loss_plot_x = []  
+    loss_plot_y = []
+    loss_plot_y_val = []
     #loop over epochs
     for t in range(EPOCH_NUM):
       #loop over trainloader
@@ -88,23 +93,25 @@ for layers in range(HID_LAY_MIN,HID_LAY_MAX,int(round((HID_LAY_MAX-HID_LAY_MIN)/
         loss.backward()
         optimizer.step()
       #fill loss lists with data
-      #loss_plot_x.append(t)  
-      #loss_plot_y.append(loss)
-    #make sample predictions with val data and measure time
-    t0 = time.time()
-    preds = model(val_data_torch)
-    t1 = time.time()
-    predtime = t1-t0
-    loss = loss_fn(preds, val_labels_torch)
+      loss_plot_x.append(t)  
+      loss_plot_y.append(np.sqrt(loss_fn(model(tr_data_torch), tr_labels_torch).detach().numpy()))
+      loss_plot_y_val.append(np.sqrt(loss_fn(model(val_data_torch), val_labels_torch).detach().numpy()))
+    #make sample predictions with val data and measure time with certain sample size
+    for i in range(ANALYSIS_SAMPLE_SIZE):
+      t0 = time.time()
+      preds = model(val_data_torch)
+      t1 = time.time()
+      predtime = predtime + t1-t0
+    predtime = predtime / ANALYSIS_SAMPLE_SIZE
+    loss = min(loss_plot_y_val)
     print (predtime)
     print (loss)
-    print (INT_LOSS_SQ)
     #save hyperloss (with val data) to dictionary
-    hyloss = hyperloss(predtime,loss.detach().numpy(),INT_LOSS_SQ)
+    hyloss = hyperloss(predtime,loss,INT_LOSS)
     allhloss["l" + str(layers) + "n" + str(nodes)] = hyloss
     #if net in top 10: save hyperl, loss, predt, archit
     if (len(toplist) < 10) or (hyloss < toplist[9][0]):
-      toplist.append([hyloss, loss, time, layers, nodes])
+      toplist.append([hyloss, loss, predtime, layers, nodes, loss_plot_x, loss_plot_y, loss_plot_y_val])
       toplist.sort(key = lambda dat: dat[0])
       if len(toplist) > 10:
         toplist.pop()
@@ -118,7 +125,23 @@ with open('analysis/toplist.txt', 'w') as f0:
     f0.write("Prediction time: " + str(netdata[2]) + "\n")
     f0.write("Layers: " + str(netdata[3]) + "\n")
     f0.write("Nodes: " + str(netdata[4]) + "\n")
-    f0.write("\n ")
+    f0.write("\n")
+    
+#visualize loss for toplist
+for i in range(len(toplist)):
+  netdata = toplist[i]
+  if netdata[6][0] > netdata[6][1] * 2:
+      netdata[6][0] = netdata[6][1]
+  if netdata[7][0] > netdata[7][1] * 2:
+      netdata[7][0] = netdata[7][1]    
+  plt.figure(i)  
+  plt.title('Loss Function', fontsize=20)
+  plt.xlabel('Epochs')
+  plt.ylabel('Error')
+  plt.plot(netdata[5], netdata[6], label = 'Train Loss')
+  plt.plot(netdata[5], netdata[7], label = 'Validation Loss')
+  plt.legend()
+  plt.savefig("analysis/plots/loss" + str(i) + ".png")
 
 #save dictionary
 with open('analysis/allhloss.pkl', 'wb') as f:

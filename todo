@@ -1,7 +1,23 @@
-datentypen fÃ¼r toplist file fixen
+loops für minibatch, lossfn, activfn, slope, optimizer
 
-hyperloss muss Ã¼berall streng monoton wachsend sein
+gpu verwenden
 
-loops fÃ¼r minibatch, lossfn, activfn, slope, optimizer
+alles in eigene files schreiben
 
-loss plots in toplist speichern
+EIGENE FILES: 
+Netz initialisieren (Philipp check)
+Hyperparameter file
+Netz trainieren
+Gridpunkt berechnen + analysieren nach timings
+Net print + save
+misc
+
+
+nohub, tmux ausprobieren für remote control
+monitoring tools: top, ...
+
+
+PROJEKTARBEIT:
+Introduction (Smodels, neural nets)
+Runtime Vergleich PyTorch/Keras(Tensorflow)
+Gridsearch PyTorch
