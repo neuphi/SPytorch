@@ -48,30 +48,19 @@ for i in range(SAMPLE_NMBR_VAL):
 
 ##################### TRAINING ###################################
 
-#create dictionary and toplist 
-allhloss = {}
-toplist = []
-
-#add outer loops: lossfunc, activation, minibatch, slope
-#optimizer muss noch!
-#lossf = ['mse','l1','nll']
-#activf = ['linear','relu','tanh','sigmoid','linz']
-#minibatchsize = [1,4,16,64,256]
-#slope = [lin, ramp, trap]
-#learning rate!
-
 for layers in range(HID_LAY_MIN,HID_LAY_MAX+1,HID_LAY_STEP):
   for nodes in range(NOD_MIN, NOD_MAX+1,NOD_STEP):
-    #initialize net
+    #update hyperparameters
     hyp["layer"] = layers
     hyp["nodes"] = nodes
     hyp["activ"] = "rel"
     hyp["shape"] = "lin"
+    #initialize net
     model = CreateNet(hyp)
     loss_fn = nn.MSELoss(size_average=True, reduce=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARN_RATE)
     #define trainloader
-    trainloader = DataLoader(tr_all, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+    trainloader = DataLoader(tr_all, batch_size=MINI_BATCH_SIZE, shuffle=True, num_workers=4)
     #initialize loss lists
     loss_plot_x = []  
     loss_plot_y = []

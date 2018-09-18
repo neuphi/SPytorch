@@ -26,15 +26,14 @@ TX  = "T1tttt"
 
 # CONFIGURE PYTORCH
 
-BATCH_SIZE     = 32
-DIM_IN         = 2
-DIM_HIDDEN_1   = 4
-DIM_HIDDEN_2   = 16
-DIM_HIDDEN_3   = 4
-DIM_OUT        = 1
-BATCH_SIZE_VAL = 59
-LEARN_RATE     = 1e-3
-EPOCH_NUM      = 100
+MINI_BATCH_SIZE     = 32
+DIM_IN              = 2
+DIM_HIDDEN_1        = 4
+DIM_HIDDEN_2        = 16
+DIM_HIDDEN_3        = 4
+DIM_OUT             = 1
+BATCH_SIZE_VAL      = 59
+EPOCH_NUM           = 100
 ANALYSIS_SAMPLE_SIZE = 10
 
 ############
@@ -49,3 +48,21 @@ HID_LAY_STEP = 2
 NOD_MAX = 6
 NOD_MIN = 4
 NOD_STEP = 2
+LEARN_RATE     = 1e-3
+
+netdata = {
+        "model": 0,
+        "layer": 2,
+        "nodes": 2,
+        "activ": "lin",
+        "shape": "trap",
+        "batch": 0
+        "lrate": 1e-3
+        "lossf": 0,
+        "optim": 0,
+        "hloss": 1e5,
+        "lossv": 1e5,
+        "predt": 1e5,
+        "plytr": [],
+        "plyva": []
+}

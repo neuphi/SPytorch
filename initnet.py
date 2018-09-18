@@ -1,13 +1,6 @@
 from glovar import *
 from misc import *
 
-hyp = {
-	"layer": 2,
-	"nodes": 2,
-	"activ": "lin",
-	"shape": "trap"
-}
-
 class Net(nn.Module):
 
 	def getNodesPerLayer(self, shp, nnod, lay, nlay):
@@ -55,14 +48,14 @@ class Net(nn.Module):
 		return n
 
 
-	def __init__(self, hyp):
+	def __init__(self, netdata):
     	
 		super(Net, self).__init__()
 
-		lay = hyp["layer"] + 1
-		nod = hyp["nodes"]
-		act = hyp["activ"]
-		shp = hyp["shape"]
+		lay = netdata["layer"] + 1
+		nod = netdata["nodes"]
+		act = netdata["activ"]
+		shp = netdata["shape"]
 
 		self.seq = nn.Sequential()		
 
@@ -84,17 +77,22 @@ class Net(nn.Module):
 		return x
 
 
-def CreateNet(hyp):
-	model = Net(hyp)
-	print("\n", model)	
-	return model
+def CreateNet(layer, nodes, activ, shape, lossf, optim):
+	
+	netdata["layer"] = layer 	
+	netdata["nodes"] = nodes
+	netdata["activ"] = activ
+	netdata["shape"] = shape
+	netdata["lossf"] = lossf
+	netdata["optim"] = optim
 
-#(loss, minibatch, optimizer)
+	netdata["hloss"] = 1e5
+	netdata["lossv"] = 1e5
+	netdata["predt"] = 1e5 
+
+	netdata["model"] = Net(netdata)
+	print("\n", netdata["model"])	
+	return netdata
+
 if __name__ == "__main__":
-
-	hyp["layer"] = 8
-	hyp["nodes"] = 23
-	hyp["activ"] = "lin"
-	hyp["shape"] = "ramp"
-
-	model = CreateNet(hyp)
+	model = CreateNet(8, 23, "lin", "ramp", "mse", "adam")

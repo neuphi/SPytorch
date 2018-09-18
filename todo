@@ -1,16 +1,19 @@
-loops für minibatch, lossfn, activfn, slope, optimizer
-
 gpu verwenden
+immer nach jeden netztraining alle files plotten damit daten nicht verloren gehen
+prg das netz trainiert nach vorgegebener architektur
+obtain numbers, passt so?
+warum ist val loss niederiger als train loss?
+obtainnumbers zu funktion machen!
 
-alles in eigene files schreiben
 
 EIGENE FILES: 
-Netz initialisieren (Philipp check)
-Hyperparameter file
-Netz trainieren
+Netz initialisieren (Philipp)  CHECK
+Hyperparameter + Glovar file  CHECK
+misc     CHECK
+Netz trainieren routine (Felix)
 Gridpunkt berechnen + analysieren nach timings
-Net print + save
-misc
+Net print + save (Philipp)
+obtain numbers
 
 
 nohub, tmux ausprobieren für remote control
