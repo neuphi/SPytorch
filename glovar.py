@@ -22,6 +22,10 @@ LSP_STEP      = 10
 SPLIT_CHOOSE = 1   #1 for split, 0 for no split
 SPLIT = [80, 10, 10]   #train/val/test
 
+LEN_TEST_SET	 	= 0
+LEN_TRAINING_SET 	= 0
+LEN_VALIDATION_SET 	= 0
+
 ############
 
 # PICK RESULT

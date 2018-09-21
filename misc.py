@@ -111,11 +111,19 @@ def SimulateData():
     return dataset
 
 def SplitData(dataset):
-    shuffle(dataset)
-    training_set = dataset[0:int(len(dataset)*SPLIT[0]*0.01)]
-    validation_set = dataset[int(len(dataset)*SPLIT[0]*0.01):int(len(dataset)*(SPLIT[0]+SPLIT[1])*0.01)]
-    test_set = dataset[int(len(dataset)*(SPLIT[0]+SPLIT[1])*0.01): len(dataset)]
-    return training_set, validation_set, test_set
+
+	shuffle(dataset)
+
+	cut1 = int(len(dataset)*SPLIT[0]*0.01)
+	cut2 = int(len(dataset)*(SPLIT[0]+SPLIT[1])*0.01)
+	cut3 = len(dataset)
+
+	training_set 	= dataset[0    : cut1]
+	validation_set 	= dataset[cut1 : cut2]
+	test_set 		= dataset[cut2 : cut3]
+
+	return training_set, validation_set, test_set
+
 
 def ModDataTorch(dataset):
     dataset_torch = torch.zeros(len(dataset), DIM_IN+DIM_OUT)

@@ -140,6 +140,7 @@ def WriteToplist():
 		f.write("\n#\t-topology:    {}".format(TXNAME))
 		f.write("\n#\t-hyperloss:   1e3 time + e^(5*(loss-intloss))")
 		f.write("\n#\t-pred time:   mean over {} single sigma predictions".format(ANALYSIS_SAMPLE_SIZE))
+		f.write("\n#\t-size sets:   test set {}, training set {}, validation set {}".format(LEN_TEST_SET, LEN_TRAINING_SET, LEN_VALIDATION_SET))
 
 	# CREATE SUBFOLDER
 
@@ -152,6 +153,8 @@ if __name__ == "__main__":
 
 	import initnet	
 	import random
+
+	LEN_TEST_SET, LEN_TRAINING_SET, LEN_VALIDATION_SET = 80, 10, 10
 	
 	act = ["lin", "rel"]
 	shp = ["lin", "ramp", "trap"]
