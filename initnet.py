@@ -77,22 +77,25 @@ class Net(nn.Module):
 		return x
 
 
-def CreateNet(layer, nodes, activ, shape, lossf, optim):
-	
-	netdata["layer"] = layer 	
-	netdata["nodes"] = nodes
-	netdata["activ"] = activ
-	netdata["shape"] = shape
-	netdata["lossf"] = lossf
-	netdata["optim"] = optim
+def CreateNet(layer, nodes, activ, shape, lossf, optim, minibatch, learning_rate):
 
-	netdata["hloss"] = 1e5
-	netdata["lossv"] = 1e5
-	netdata["predt"] = 1e5 
-
-	netdata["model"] = Net(netdata)
-	print("\n", netdata["model"])	
-	return netdata
+    netdata = {}	
+    netdata["layer"] = layer 	
+    netdata["nodes"] = nodes
+    netdata["activ"] = activ
+    netdata["shape"] = shape
+    netdata["lossf"] = lossf
+    netdata["optim"] = optim
+    netdata["batch"] = minibatch
+    netdata["lrate"] = learning_rate
+    netdata["plytr"] = []
+    netdata["plyte"] = []    
+    netdata["hloss"] = 1e5
+    netdata["lossv"] = 1e5
+    netdata["predt"] = 1e5 
+    netdata["model"] = Net(netdata)
+    #print("\n", netdata["model"])	
+    return netdata
 
 if __name__ == "__main__":
 	model = CreateNet(8, 23, "lin", "ramp", "mse", "adam")

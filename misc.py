@@ -1,11 +1,11 @@
-from glovar import *
 import pickle
 from smodels.experiment.databaseObj import Database
 from smodels.tools.physicsUnits import GeV, fb
 import numpy as np
-
+from random import shuffle
 import torch
 import torch.nn as nn
+from glovar import *
 
 class Net(nn.Module):
     def __init__(self):
@@ -28,19 +28,15 @@ class Net(nn.Module):
         return x
 
 def getExpRes(exp):
-    print("load result ..")
     database=Database(PATH_DATABASE)
-    print("  done")
     return database.getExpResults(analysisIDs = [exp])[0]
 
 def saveData(data):
-    print("\nsaving data ..")
     file = open(PATH_DATA + "data.pcl","wb")
     pickle.dump(len(data), file)
     for item in data:
         pickle.dump(item, file)
     file.close
-    print("  done")
     
 def loadData():
     print("\nloading data ..")
@@ -56,7 +52,7 @@ def loadData():
 def Hash ( A ):
     return int(A[0]*10000.+A[1])
 
-def hyperloss(time, loss, intloss):
+def hyperloss_exp(time, loss, intloss):
   a = 1000     #some finetuning is possible with the a,b parameters
   b = 5
   c = 1
@@ -64,6 +60,15 @@ def hyperloss(time, loss, intloss):
     return a*time + c*np.exp(10)
   else:
     return a*time + c*np.exp(b*(loss-intloss))
+
+def hyperloss_lin(time, loss, intloss):
+  a = 1000     #some finetuning is possible with the a,b parameters
+  b = 100
+  c = 0.01
+  if loss > intloss:
+    return a*time + b*loss
+  else:
+    return a*time + c*loss
 
 def initloss (loss_fn_i):
     if loss_fn_i == "MSE":
@@ -75,21 +80,6 @@ def initopt (optimizer_i, model, learning_rate):
       optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     return optimizer
 
-def ModDataTorch(tr_data,tr_labels,val_data,val_labels):
-    #initialize tensors
-    tr_data_torch    = torch.zeros(SAMPLE_NMBR, DIM_IN)
-    tr_labels_torch  = torch.zeros(SAMPLE_NMBR, DIM_OUT)
-    val_data_torch   = torch.zeros(SAMPLE_NMBR_VAL, DIM_IN)
-    val_labels_torch = torch.zeros(SAMPLE_NMBR_VAL, DIM_OUT)    
-    #fill tensors
-    for i in range(SAMPLE_NMBR):
-      tr_data_torch[i]   = torch.from_numpy(tr_data[i])
-      tr_labels_torch[i] = tr_labels[i]    
-    for i in range(SAMPLE_NMBR_VAL):
-      val_data_torch[i]   = torch.from_numpy(val_data[i])
-      val_labels_torch[i] = val_labels[i]      
-    return tr_data_torch, tr_labels_torch, val_data_torch, val_labels_torch
-
 def modelinputs (data):
   inputs    = torch.zeros(torch.numel(data[:,0]), DIM_IN)
   labels    = torch.zeros(torch.numel(data[:,0]), DIM_OUT)
@@ -98,3 +88,29 @@ def modelinputs (data):
     inputs[j][1] = data[j][1]
     labels[j]    = data[j][2]
   return inputs, labels
+
+def SimulateData():
+    dataset = []
+    expres = getExpRes(EXP)
+    for mother in np.arange(MOTHER_LOW, MOTHER_UP, MOTHER_STEP):
+        for lsp in np.arange (LSP_LOW, mother, LSP_STEP): 
+            masses = [[ mother*GeV, lsp*GeV], [ mother*GeV, lsp*GeV]]
+            ul     = expres.getUpperLimitFor(txname=TX, mass=masses)
+            if type(ul) == type(None):
+                continue
+            dataset.append([np.array([mother, lsp]), ul.asNumber(fb)])
+    return dataset
+
+def SplitData(dataset):
+    shuffle(dataset)
+    training_set = dataset[0:int(len(dataset)*SPLIT[0]*0.01)]
+    validation_set = dataset[int(len(dataset)*SPLIT[0]*0.01):int(len(dataset)*(SPLIT[0]+SPLIT[1]))]
+    test_set = dataset[int(len(dataset)*(SPLIT[0]+SPLIT[1])*0.01): len(dataset)]
+    return training_set, validation_set, test_set
+
+def ModDataTorch(dataset):
+    dataset_torch = torch.zeros(len(dataset), DIM_IN+DIM_OUT)
+    for i in range(len(dataset)):        
+        dataset_torch[i][:2] = torch.from_numpy(dataset[i][0][:2])
+        dataset_torch[i][2] = dataset[i][1]                
+    return dataset_torch

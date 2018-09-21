@@ -9,85 +9,160 @@ Created on Wed Sep 12 09:59:21 2018
 
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader as DataLoader
-from torch.utils.data import Dataset as Dataset
+#from torch.utils.data import Dataset as Dataset
 import time
 from misc import *
-from hyperloss import *
 from initnet import *
 from printtorch import *
 
-######################## LOAD DATA ################################
+#################### INITIALIZE CLOCK ############################
 
-#run obtain numbers
+t_simulatedata = 0
+t_moddata = 0
+t_prepnets = 0
+t_training = 0 
+t_timeanalysis = 0
+t_checktoplist = 0
+t_writetoplist = 0
+t_total = time.time()
 
-tr_data,tr_labels,val_data,val_labels = loadData()
+######################## GET DATA ################################
 
-SAMPLE_NMBR    = len(tr_data)
-SAMPLE_NMBR_VAL= len(val_data)
-    
-###################### MODIFY DATA FOR NN #########################
+t_simulatedata = time.time()
 
-tr_data_torch, tr_labels_torch, val_data_torch, val_labels_torch = ModDataTorch(tr_data,tr_labels,val_data,val_labels)
+dataset = SimulateData()
+training_set, validation_set, test_set = SplitData(dataset)
 
-##################### SPLIT DATA #################################
+saveData([training_set, validation_set, test_set])
 
-#if SPLIT_CHOOSE = 1, split Data into SPLIT
-#val data is already simulated
+SAMPLE_NMBR    = len(training_set)
+SAMPLE_NMBR_VAL= len(validation_set)
+
+t_simulatedata = time.time() - t_simulatedata
+
+################## TURN DATA IN TENSORS ##########################
+
+t_moddata = time.time()
+
+training_set = ModDataTorch(training_set)
+validation_set = ModDataTorch(validation_set)
+test_set = ModDataTorch(test_set)
+
+print ("DATA SIZE:")
+print (training_set.size())
+print (validation_set.size())
+print (test_set.size())
+
+tr_labels = torch.zeros(len(training_set[:,0]), DIM_OUT)
+for i in range(len(training_set[:,0])): tr_labels[i] = training_set[i,2]
+
+val_labels = torch.zeros(len(validation_set[:,0]), DIM_OUT)
+for i in range(len(validation_set[:,0])): val_labels[i] = validation_set[i,2]
+
+test_labels = torch.zeros(len(test_set[:,0]), DIM_OUT)
+for i in range(len(test_set[:,0])): test_labels[i] = test_set[i,2]
+
+t_moddata = time.time() - t_moddata
 
 ##################### TRAINING ###################################
+
+print("\n STARTING TRAINING PROCESS")
+
+counter = 1
+totalcount = len(LOSS_FUNCTIONS) * len(OPTIMIZERS) * len(MINIBATCH_SIZES) * \
+len(LEARN_RATE) * len(ACTIVATION_FUNCTIONS) * len(SHAPES) * len(HID_LAY) * len(NOD)
+starttime = time.time()
 
 for loss_fn_i in LOSS_FUNCTIONS:
   for optimizer_i in OPTIMIZERS:
     for minibatch in MINIBATCH_SIZES:
-      for learning_rate in range(LR_MIN, LR_MAX, LR_STEP):
+      for learning_rate in LEARN_RATE:
         for activ in ACTIVATION_FUNCTIONS:
           for shape in SHAPES:
-            for layers in range(HID_LAY_MIN,HID_LAY_MAX+1,HID_LAY_STEP):
-              for nodes in range(NOD_MIN, NOD_MAX+1,NOD_STEP):
-                #initialize net, lossfunction and optimizer
+            for layers in HID_LAY:
+              for nodes in NOD:
+                #initialize net, lossfunction and optimizer       
+                print("\nNET ", counter, " of ", totalcount)
+                t_prepnets_dummy = time.time()
                 netdata = CreateNet(
                         layers,            
                         nodes,
                         activ,
                         shape,
-                        loss_fn,
-                        optimizer
+                        loss_fn_i,
+                        optimizer_i,
+                        minibatch,
+                        learning_rate
                         )
                 loss_fn = initloss(loss_fn_i)
                 optimizer = initopt(optimizer_i, netdata['model'], learning_rate)
                 #define trainloader
-                trainloader = DataLoader(tr_data_torch, batch_size=minibatch, shuffle=True, num_workers=4)
+                trainloader = DataLoader(training_set, batch_size=minibatch, shuffle=True, num_workers=4)
+                t_prepnets = t_prepnets + (time.time() - t_prepnets_dummy)
                 #loop over epochs
+                t_training_dummy = time.time() 
                 for epoch in range(EPOCH_NUM):
                   #loop over trainloader
                   for i, data in enumerate(trainloader):
                     #make data accassable for model
                     inputs, labels = modelinputs(data)  
                     #do predictions and calculate loss
-                    labels_pred = model(inputs)
+                    labels_pred = netdata["model"](inputs)
                     loss_minibatch = loss_fn(labels_pred, labels)
                     #make one step to optimize weights
                     optimizer.zero_grad()
                     loss_minibatch.backward()
                     optimizer.step()
                   #fill loss lists with data
-                  netdata["plytr"].append(np.sqrt(loss_fn(model(tr_data_torch), tr_labels_torch).detach().numpy()))
-                  netdata["plyva"].append(np.sqrt(loss_fn(model(val_data_torch), val_labels_torch).detach().numpy()))
+                  if loss_fn_i == "MSE":
+                      #netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set[:,:2]), training_set[:,2]).detach().numpy()))
+                      netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set[:,:2]), tr_labels).detach().numpy()))
+                      netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](test_set[:,:2]), test_labels).detach().numpy()))
+                  else:
+                      netdata["plytr"].append(loss_fn(netdata["model"](training_set[:,:2]), tr_labels).detach().numpy())
+                      netdata["plyte"].append(loss_fn(netdata["model"](test_set[:,:2]), test_labels).detach().numpy())                      
+                t_training = t_training + (time.time() - t_training_dummy)      
                 #make sample predictions (val), measure time (sample size)
+                t_timeanalysis_dummy = time.time()
+                predtime = 0
                 for i in range(ANALYSIS_SAMPLE_SIZE):
                   t0 = time.time()
-                  preds = model(val_data_torch)
+                  preds = netdata["model"](validation_set[:,:2])
                   t1 = time.time()
                   predtime = predtime + t1-t0
                 netdata["predt"] = predtime / ANALYSIS_SAMPLE_SIZE
-                netdata["lossval"] = min(loss_plot_y_val)
-                print (predtime)
-                print (loss)
+                if loss_fn_i == "MSE":
+                    netdata["lossv"] = np.sqrt(loss_fn(netdata["model"](validation_set[:,:2]), val_labels).detach().numpy())
+                else:
+                    netdata["lossv"] = loss_fn(netdata["model"](validation_set[:,:2]), val_labels).detach().numpy()
+                print ("Prediction Time: ",netdata["predt"])
+                print ("Validation Loss: ",netdata["lossv"])
+                clock = time.time() - starttime     
+                print("Runtime: ", round(clock))
+                print("Estimated Left: ", round((clock/counter)*(totalcount-counter)) )
+                t_timeanalysis = t_timeanalysis + (time.time() - t_timeanalysis_dummy)
                 #save hyperloss
-                netdata["hloss"] = hyperloss(netdata["predt"],netdata["lossval"],INT_LOSS)
+                t_checktoplist_dummy = time.time()
+                netdata["hloss"] = hyperloss_lin(netdata["predt"],netdata["lossv"],INT_LOSS)
                 #check if net in top 10 and save
                 if NetIsTopPerformer(netdata):
-                    UpdateToplist(netdata)
+                    UpdateToplist(netdata)   
+                counter += 1
+                t_checktoplist = t_checktoplist + (time.time() - t_checktoplist_dummy)
+                #write toplist
+                t_writetoplist_dummy = time.time()
+                WriteToplist()
+                t_writetoplist = t_writetoplist + (time.time() - t_writetoplist_dummy)
 
-##################### WRITE TOPLIST ##############################
-WriteToplist()
+##################### TIME ANALYSIS ###############################
+
+t_total = time.time() - t_total
+
+print ("Time Data Simulation: ", t_simulatedata)
+print ("Time Data Modification: ", t_moddata)
+print ("Time Prepare Nets: ", t_prepnets)
+print ("Time Train Nets: ", t_training) 
+print ("Time Prediction Time Analysis:", t_timeanalysis)
+print ("Time Check Toplist", t_checktoplist)
+print ("Time Write Toplist", t_writetoplist)
+print ("Time Total", t_total)
