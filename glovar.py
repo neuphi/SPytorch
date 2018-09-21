@@ -66,4 +66,4 @@ OPTIMIZERS = ["Adam"] #["Adam"]
 MINIBATCH_SIZES = [8]
 ACTIVATION_FUNCTIONS = ["rel"] #["lin","rel"]
 SHAPES = ["lin","trap","ramp"] #["lin","trap","ramp"]
-netdata = {}
+#netdata = {}

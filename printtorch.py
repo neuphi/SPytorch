@@ -38,31 +38,34 @@ def UpdateToplist(netdata):
 
 
 def GetTableHeader(desc):
+
 	a = ""
-	for i in range(120):
+	for i in range(135):
 		a += "#"
 	b = "\n#\n"
 	c = "# " + desc + "\n#\n"
-	d = "# LAYER | NODES | ACTIV | SHAPE | BATCH SIZE | LEARNING RATE | LOSS FUNC | OPTIM | HYPER LOSS | LOSS VALUE | PRED TIME\n"
-	e = "# _____________________________________________________________________________________________________________________\n"
+	d = "# LAYER | NODES | NODES TOTAL | ACTIV | SHAPE | BATCH SIZE | LEARNING RATE | LOSS FUNC | OPTIM | HYPER LOSS | LOSS VALUE | PRED TIME\n"
+	e = "# ___________________________________________________________________________________________________________________________________\n"
 	return a+b+c+d+e
 
 def GetNetToString(entry):
+
 	a = "# " + '{:^5d}'.format(entry["layer"]) + " | "
 	b = '{:^5d}'.format(entry["nodes"]) + " | "
-	c = '{:^5}'.format(entry["activ"]) + " | "
-	d = '{:^5}'.format(entry["shape"]) + " | "
-	e = '{:^10d}'.format(entry["batch"]) + " | "
-	f = '{:^13.3e}'.format(entry["lrate"]) + " | "
-	g = '{:^9}'.format(entry["lossf"]) + " | "
-	h = '{:^5}'.format(entry["optim"]) + " | "
-	i = '{:^10.2f}'.format(entry["hloss"]) + " | "
-	j = '{:^10.2f}'.format(entry["lossv"]) + " | "
-	k = '{:^9.3e}'.format(entry["predt"]) + " | \n"
-	return a+b+c+d+e+f+g+h+i+j+k
+	c = '{:^11d}'.format(entry["nodto"]+1) + " | " # +1 to include output node
+	d = '{:^5}'.format(entry["activ"]) + " | "
+	e = '{:^5}'.format(entry["shape"]) + " | "
+	f = '{:^10d}'.format(entry["batch"]) + " | "
+	g = '{:^13.3e}'.format(entry["lrate"]) + " | "
+	h = '{:^9}'.format(entry["lossf"]) + " | "
+	i = '{:^5}'.format(entry["optim"]) + " | "
+	j = '{:^10.2f}'.format(entry["hloss"]) + " | "
+	k = '{:^10.2f}'.format(entry["lossv"]) + " | "
+	l = '{:^9.3e}'.format(entry["predt"]) + " | \n"
+	return a+b+c+d+e+f+g+h+i+j+k+l
 
 def GetTableBottom():
-	return "# _____________________________________________________________________________________________________________________\n"
+	return "# ___________________________________________________________________________________________________________________________________|\n"
 
 
 
@@ -132,8 +135,11 @@ def WriteToplist():
 		for entry in toplist:
 			f.write(GetNetToString(entry))	
 		f.write(GetTableBottom())
-		f.write("#\n# Global Info:\n#\n")
-		f.write("#\t-analysis ID: {}".format(ANALYSIS_ID) + "\n#\t-topology: {}".format(TXNAME))
+		f.write("#\n# Global Info:\n#")
+		f.write("\n#\t-analysis ID: {}".format(ANALYSIS_ID))
+		f.write("\n#\t-topology:    {}".format(TXNAME))
+		f.write("\n#\t-hyperloss:   1e3 time + e^(5*(loss-intloss))")
+		f.write("\n#\t-pred time:   mean over {} single sigma predictions".format(ANALYSIS_SAMPLE_SIZE))
 
 	# CREATE SUBFOLDER
 
@@ -161,7 +167,7 @@ if __name__ == "__main__":
 		pt = [random.random() for i in range(100)]
 		pv = [random.random() for i in range(100)]
 
-		netdata = initnet.CreateNet(l, n, a, s, "mse", "adam")
+		netdata = initnet.CreateNet(l, n, a, s, "mse", "adam", 16, 1e-3)
 		netdata["hloss"] = h
 		netdata["plytr"] = pt
 		netdata["plyte"] = pv		
