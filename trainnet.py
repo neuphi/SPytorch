@@ -35,8 +35,9 @@ training_set, validation_set, test_set = SplitData(dataset)
 
 saveData([training_set, validation_set, test_set])
 
-SAMPLE_NMBR    = len(training_set)
-SAMPLE_NMBR_VAL= len(validation_set)
+LEN_TRAINING_SET    = len(training_set)
+LEN_VALIDATION_SET  = len(validation_set)
+LEN_TEST_SET        = len(test_set)
 
 t_simulatedata = time.time() - t_simulatedata
 
@@ -121,6 +122,10 @@ for loss_fn_i in LOSS_FUNCTIONS:
                   else:
                       netdata["plytr"].append(loss_fn(netdata["model"](training_set[:,:2]), tr_labels).detach().numpy())
                       netdata["plyte"].append(loss_fn(netdata["model"](test_set[:,:2]), test_labels).detach().numpy())                      
+                  #save validation
+                  vall_dummy = loss_fn(netdata["model"](validation_set[:,:2]), val_labels).detach().numpy()
+                  if netdata["lossv"] > vall_dummy:
+                      netdata["lossv"] = vall_dummy
                 t_training = t_training + (time.time() - t_training_dummy)      
                 #make sample predictions (val), measure time (sample size)
                 t_timeanalysis_dummy = time.time()
@@ -131,10 +136,10 @@ for loss_fn_i in LOSS_FUNCTIONS:
                   t1 = time.time()
                   predtime = predtime + t1-t0
                 netdata["predt"] = predtime / ANALYSIS_SAMPLE_SIZE
+                #fix validation if squared
                 if loss_fn_i == "MSE":
-                    netdata["lossv"] = np.sqrt(loss_fn(netdata["model"](validation_set[:,:2]), val_labels).detach().numpy())
-                else:
-                    netdata["lossv"] = loss_fn(netdata["model"](validation_set[:,:2]), val_labels).detach().numpy()
+                    netdata["lossv"] = np.sqrt(netdata["lossv"])
+                #print some infos
                 print ("Prediction Time: ",netdata["predt"])
                 print ("Validation Loss: ",netdata["lossv"])
                 clock = time.time() - starttime     
@@ -143,7 +148,7 @@ for loss_fn_i in LOSS_FUNCTIONS:
                 t_timeanalysis = t_timeanalysis + (time.time() - t_timeanalysis_dummy)
                 #save hyperloss
                 t_checktoplist_dummy = time.time()
-                netdata["hloss"] = hyperloss_lin(netdata["predt"],netdata["lossv"],INT_LOSS)
+                netdata["hloss"] = hyperloss(HYPERLOSS_FUNCTION, netdata["predt"],netdata["lossv"],INT_LOSS)
                 #check if net in top 10 and save
                 if NetIsTopPerformer(netdata):
                     UpdateToplist(netdata)   

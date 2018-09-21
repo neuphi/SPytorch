@@ -52,6 +52,15 @@ def loadData():
 def Hash ( A ):
     return int(A[0]*10000.+A[1])
 
+def hyperloss(HYPERLOSS_FUNCTION, time, loss, intloss):
+    if HYPERLOSS_FUNCTION == "lin":
+        return hyperloss_lin(time, loss, intloss)
+    elif HYPERLOSS_FUNCTION == "exp":
+        return hyperloss_exp(time, loss, intloss)
+    else:
+        print("WARNING! Hyperloss function undefined! Using linear.")
+        return hyperloss_lin(time, loss, intloss)
+
 def hyperloss_exp(time, loss, intloss):
   a = 1000     #some finetuning is possible with the a,b parameters
   b = 5
@@ -104,7 +113,7 @@ def SimulateData():
 def SplitData(dataset):
     shuffle(dataset)
     training_set = dataset[0:int(len(dataset)*SPLIT[0]*0.01)]
-    validation_set = dataset[int(len(dataset)*SPLIT[0]*0.01):int(len(dataset)*(SPLIT[0]+SPLIT[1]))]
+    validation_set = dataset[int(len(dataset)*SPLIT[0]*0.01):int(len(dataset)*(SPLIT[0]+SPLIT[1])*0.01)]
     test_set = dataset[int(len(dataset)*(SPLIT[0]+SPLIT[1])*0.01): len(dataset)]
     return training_set, validation_set, test_set
 

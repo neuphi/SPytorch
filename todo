@@ -1,5 +1,6 @@
 gpu verwenden
-global info: data set sizes, hyperloss function, times, 
+global info: data set sizes 
+is there any automatic regularization?
 
 nohub, tmux ausprobieren für remote control
 monitoring tools: top, ...
