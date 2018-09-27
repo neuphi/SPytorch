@@ -8,12 +8,13 @@ Created on Wed Sep 12 09:59:21 2018
 ####################### IMPORT STUFF ############################
 
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 from torch.utils.data import DataLoader as DataLoader
 #from torch.utils.data import Dataset as Dataset
 import time
-from misc import *
-from initnet import *
-from printtorch import *
+from system.misc import *
+from system.initnet import *
+from system.printtorch import *
 
 #################### INITIALIZE CLOCK ############################
 
@@ -63,6 +64,22 @@ for i in range(len(validation_set[:,0])): val_labels[i] = validation_set[i,2]
 test_labels = torch.zeros(len(test_set[:,0]), DIM_OUT)
 for i in range(len(test_set[:,0])): test_labels[i] = test_set[i,2]
 
+if CUDA:
+    training_set_var = Variable(training_set[:,:2].cuda())
+    tr_labels_var = Variable(tr_labels.cuda())
+    test_set_var = Variable(test_set[:,:2].cuda())
+    test_labels_var = Variable(test_labels.cuda())
+    validation_set_var = Variable(validation_set[:,:2].cuda())
+    validation_labels_var = Variable(val_labels.cuda())
+else:
+    training_set_var = Variable(training_set[:,:2])
+    tr_labels_var = Variable(tr_labels)
+    test_set_var = Variable(test_set[:,:2])
+    test_labels_var = Variable(test_labels)
+    validation_set_var = Variable(validation_set[:,:2])
+    validation_labels_var = Variable(val_labels)
+
+
 t_moddata = time.time() - t_moddata
 
 ##################### TRAINING ###################################
@@ -94,7 +111,9 @@ for loss_fn_i in LOSS_FUNCTIONS:
                         optimizer_i,
                         minibatch,
                         learning_rate
-                        )
+                        )  
+                if CUDA:
+                    netdata['model'].cuda()
                 loss_fn = initloss(loss_fn_i)
                 optimizer = initopt(optimizer_i, netdata['model'], learning_rate)
                 #define trainloader
@@ -117,13 +136,13 @@ for loss_fn_i in LOSS_FUNCTIONS:
                   #fill loss lists with data
                   if loss_fn_i == "MSE":
                       #netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set[:,:2]), training_set[:,2]).detach().numpy()))
-                      netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set[:,:2]), tr_labels).detach().numpy()))
-                      netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](test_set[:,:2]), test_labels).detach().numpy()))
+                      netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set_var), tr_labels_var).detach().numpy()))
+                      netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](test_set_var), test_labels_var).detach().numpy()))
                   else:
-                      netdata["plytr"].append(loss_fn(netdata["model"](training_set[:,:2]), tr_labels).detach().numpy())
-                      netdata["plyte"].append(loss_fn(netdata["model"](test_set[:,:2]), test_labels).detach().numpy())                      
+                      netdata["plytr"].append(loss_fn(netdata["model"](training_set_var), tr_labels_var).detach().numpy())
+                      netdata["plyte"].append(loss_fn(netdata["model"](test_set_var), test_labels_var).detach().numpy())                      
                   #save validation
-                  vall_dummy = loss_fn(netdata["model"](validation_set[:,:2]), val_labels).detach().numpy()
+                  vall_dummy = loss_fn(netdata["model"](validation_set_var), validation_labels_var).detach().numpy()
                   if netdata["lossv"] > vall_dummy:
                       netdata["lossv"] = vall_dummy
                 t_training = t_training + (time.time() - t_training_dummy)      
@@ -132,7 +151,7 @@ for loss_fn_i in LOSS_FUNCTIONS:
                 predtime = 0
                 for i in range(ANALYSIS_SAMPLE_SIZE):
                   t0 = time.time()
-                  preds = netdata["model"](validation_set[:,:2])
+                  preds = netdata["model"](validation_set_var)
                   t1 = time.time()
                   predtime = predtime + t1-t0
                 netdata["predt"] = predtime / ANALYSIS_SAMPLE_SIZE

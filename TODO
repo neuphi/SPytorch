@@ -1,5 +1,11 @@
+for both Keras and Pytorch
+Plot: Pred Time / Sample Size
+Plot: PT / Layer
+Plot: PT / Nodes
+Plot: Loss / Architecture
+always do N training/pred sequences, then calculate statistical metrics!
+
 gpu verwenden
-global info: data set sizes 
 is there any automatic regularization?
 
 nohub, tmux ausprobieren für remote control

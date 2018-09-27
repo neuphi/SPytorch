@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 # SET PATHS
 
@@ -37,6 +38,7 @@ TX  = "T1tttt"
 
 # CONFIGURE PYTORCH
 
+CUDA                 = torch.cuda.is_available()
 MINI_BATCH_SIZE      = 32
 DIM_IN               = 2
 DIM_HIDDEN_1         = 4

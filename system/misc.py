@@ -1,11 +1,12 @@
 import pickle
+from system.glovar import *
 from smodels.experiment.databaseObj import Database
 from smodels.tools.physicsUnits import GeV, fb
 import numpy as np
 from random import shuffle
 import torch
 import torch.nn as nn
-from glovar import *
+from torch.autograd import Variable
 
 class Net(nn.Module):
     def __init__(self):
@@ -96,6 +97,12 @@ def modelinputs (data):
     inputs[j][0] = data[j][0]
     inputs[j][1] = data[j][1]
     labels[j]    = data[j][2]
+  if CUDA:
+    inputs = Variable(inputs.cuda())
+    labels = Variable(labels.cuda())
+  else:
+    inputs = Variable(inputs)
+    labels = Variable(labels)
   return inputs, labels
 
 def SimulateData():

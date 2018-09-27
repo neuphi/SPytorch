@@ -1,5 +1,5 @@
-from glovar import *
-from misc import *
+from system.glovar import *
+from system.misc import *
 
 class Net(nn.Module):
 
