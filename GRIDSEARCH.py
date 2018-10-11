@@ -65,7 +65,7 @@ test_labels = torch.zeros(len(test_set[:,0]), DIM_OUT)
 for i in range(len(test_set[:,0])): test_labels[i] = test_set[i,2]
 
 if CUDA:
-    training_set_var = Variable(training_set[:,:2].cuda(), volatile=True)
+    training_set_var = Variable(training_set[:,:2].cuda())
     tr_labels_var = Variable(tr_labels.cuda(), volatile=True)
     test_set_var = Variable(test_set[:,:2].cuda(), volatile=True)
     test_labels_var = Variable(test_labels.cuda(), volatile=True)
