@@ -131,10 +131,17 @@ def SplitData(dataset):
 
 	return training_set, validation_set, test_set
 
-
 def ModDataTorch(dataset):
     dataset_torch = torch.zeros(len(dataset), DIM_IN+DIM_OUT)
     for i in range(len(dataset)):        
         dataset_torch[i][:2] = torch.from_numpy(dataset[i][0][:2])
         dataset_torch[i][2] = dataset[i][1]                
     return dataset_torch
+
+def ModDataKeras(dataset):
+    data = []
+    labels = []
+    for i in range(len(dataset)):
+        data.append(dataset[i][0])
+        labels.append(dataset[i][1])
+    return data, labels

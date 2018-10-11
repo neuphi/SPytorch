@@ -54,14 +54,14 @@ HYPERLOSS_FUNCTION   = "lin" #"lin", "exp"
 
 # HYPERPARAMETERS
 
-INT_LOSS = 5
-INT_LOSS_SQ = 25
-HID_LAY_MAX = 4
-HID_LAY_MIN = 2
-HID_LAY_STEP = 2
+INT_LOSS = 4
+INT_LOSS_SQ = 20
+HID_LAY_MAX = 2
+HID_LAY_MIN = 1
+HID_LAY_STEP = 1
 HID_LAY = range(HID_LAY_MIN,HID_LAY_MAX+1,HID_LAY_STEP)
-NOD_MAX = 8
-NOD_MIN = 8
+NOD_MAX = 16
+NOD_MIN = 12
 NOD_STEP = 4
 NOD = range(NOD_MIN, NOD_MAX+1,NOD_STEP)
 LR_MIN = 1e-3
@@ -70,7 +70,7 @@ LR_STEP = 9e-3
 LEARN_RATE     = np.arange(LR_MIN, LR_MAX, LR_STEP)
 LOSS_FUNCTIONS = ["MSE"] #["MSE"]
 OPTIMIZERS = ["Adam"] #["Adam"]
-MINIBATCH_SIZES = [8]
-ACTIVATION_FUNCTIONS = ["rel"] #["lin","rel"]
-SHAPES = ["lin","trap","ramp"] #["lin","trap","ramp"]
+MINIBATCH_SIZES = [32]
+ACTIVATION_FUNCTIONS = ["rel"]#, "sig", "tah"]
+SHAPES = ["lin"]#,"trap","ramp"]
 #netdata = {}

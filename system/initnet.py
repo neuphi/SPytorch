@@ -79,6 +79,16 @@ class Net(nn.Module):
 				if i < lay - 1:
 					self.seq.add_module('rel{}'.format(i),nn.ReLU())
 
+			elif act == "sig":
+				self.seq.add_module('lin{}'.format(i),nn.Linear(nin,nout))
+				if i < lay - 1:
+					self.seq.add_module('rel{}'.format(i),nn.Sigmoid())
+
+			elif act == "tah":
+				self.seq.add_module('lin{}'.format(i),nn.Linear(nin,nout))
+				if i < lay - 1:
+					self.seq.add_module('rel{}'.format(i),nn.Tanh())
+
 	def forward(self, x):
 		
 		x = self.seq(x)

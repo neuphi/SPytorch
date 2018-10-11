@@ -6,29 +6,10 @@ Plot: Loss / Architecture
 always do N training/pred sequences, then calculate statistical metrics!
 
 gpu verwenden
-is there any automatic regularization?
-
 nohub, tmux ausprobieren für remote control
 monitoring tools: top, ...
-
 
 PROJEKTARBEIT:
 Introduction (Smodels, neural nets)
 Runtime Vergleich PyTorch/Keras(Tensorflow)
 Gridsearch PyTorch
-
-FÜR KERAS/PYTORCH PRG:
-misc
-glovar
-obtainnumbertorch
-traintorch
-drawtorch
-timingtorch
-
-FÜR HYPERPARAMETER OPT PRG:
-misc
-glovar
-obtaindata
-initnet
-trainnet
-...toplistfile

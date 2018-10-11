@@ -112,7 +112,8 @@ def StoreNetData(anadir, entry):
 	plt.plot(x_axis, y_axis_trn, label = 'Train Loss')
 	plt.plot(x_axis, y_axis_val, label = 'Test Loss')
 	plt.legend()
-	plt.savefig(netdir + "/loss{}.png".format(j))
+	plt.savefig(netdir + "/loss{}.eps".format(j), format = 'eps')
+	plt.clf()
 	
 	# WRITE INFO
 
@@ -126,34 +127,36 @@ def StoreNetData(anadir, entry):
 
 def WriteToplist():
 
-	global toplist
+    global toplist
 
 	# MAKE DIR
 	
-	anadir = 'analysis/topology/{}'.format(TXNAME)
+    anadir = 'analysis/topology/{}'.format(TXNAME)
 
-	if not os.path.exists(anadir):
-		print("makedir " + anadir)
-		os.makedirs(anadir)
+    if not os.path.exists(anadir):
+        print("makedir " + anadir)
+        os.makedirs(anadir)
 
 	# WRITE TOPLIST
 
-	with open(anadir + '/toplist.txt', 'w') as f:
-		f.write(GetTableHeader("Top 10 Performing Models:"))
-		for entry in toplist:
-			f.write(GetNetToString(entry))	
-		f.write(GetTableBottom())
-		f.write("#\n# Global Info:\n#")
-		f.write("\n#\t-analysis ID: {}".format(ANALYSIS_ID))
-		f.write("\n#\t-topology:    {}".format(TXNAME))
-		f.write("\n#\t-hyperloss:   1e3 time + e^(5*(loss-intloss))")
-		f.write("\n#\t-pred time:   mean over {} single sigma predictions".format(ANALYSIS_SAMPLE_SIZE))
-		f.write("\n#\t-size sets:   test set {}, training set {}, validation set {}".format(LEN_TEST_SET, LEN_TRAINING_SET, LEN_VALIDATION_SET))
+    with open(anadir + '/toplist.txt', 'w') as f:
+        f.write(GetTableHeader("Top 10 Performing Models:"))
+        for entry in toplist:
+            f.write(GetNetToString(entry))	
+        f.write(GetTableBottom())
+        f.write("#\n# Global Info:\n#")
+        f.write("\n#\t-analysis ID: {}".format(ANALYSIS_ID))
+        f.write("\n#\t-topology:    {}".format(TXNAME))
+        f.write("\n#\t-hyperloss:   1e3 time + e^(5*(loss-intloss))")
+        f.write("\n#\t-pred time:   mean over {} single sigma predictions".format(ANALYSIS_SAMPLE_SIZE))
+        f.write("\n#\t-size sets:   test set {}, ".format(LEN_TEST_SET))
+        f.write("\n#\t-training set {},".format(LEN_TRAINING_SET)) 
+        f.write("\n#\t-validation set {}".format(LEN_VALIDATION_SET))
 
 	# CREATE SUBFOLDER
 
-	for entry in toplist:
-		StoreNetData(anadir, entry)
+    for entry in toplist:
+        StoreNetData(anadir, entry)
 
 
 
