@@ -1,0 +1,24 @@
+Hyperloss: 0.4065853785602425
+Loss: 3.464517
+Prediction time: 0.0004061222076416016
+Layers: 4
+Nodes: 6
+
+Hyperloss: 0.4489176355812524
+Loss: 4.259805
+Prediction time: 0.00042421817779541015
+Layers: 4
+Nodes: 4
+
+Hyperloss: 325.94582964552404
+Loss: 6.1569953
+Prediction time: 0.000571441650390625
+Layers: 6
+Nodes: 6
+
+Hyperloss: 22026.988813643693
+Loss: 8.7085705
+Prediction time: 0.0005230188369750976
+Layers: 6
+Nodes: 4
+

@@ -1,0 +1,41 @@
+ANALYSIS_ID  = CMS-PAS-SUS-12-026 
+TXNAME = T1tttt 
+MOTHER_LOW = 600 
+MOTHER_UP = 1100 
+MOTHER_STEP = 5 
+LSP_LOW = 0 
+LSP_STEP = 10 
+LEN_TEST_SET = 505 
+LEN_TRAINING_SET = 4040 
+LEN_VALIDATION_SET = 505 
+INT_LOSS = 4 
+INT_LOSS = 20 
+HID_LAY_MAX = 2 
+HID_LAY_MIN = 1 
+HID_LAY_STEP = 1 
+NOD_MAX = 16 
+NOD_MIN = 12 
+NOD_STEP = 4 
+LR_MIN = 0.001 
+LR_MAX = 0.0010001 
+LR_STEP = 0.009 
+LOSS FUNCTIONS: 
+    MSE 
+OPTIMIZERS: 
+    Adam 
+MINIBATCH_SIZES: 
+    32 
+ACTIVATION_FUNCTIONS: 
+    rel 
+SHAPES: 
+    lin 
+EPOCH_NUM = 200 
+The prediction is done for the test set, so for a single prediction it                 has to be divided by the length of the test set.                 Run on Intel Core i7-3517U CPU @ 1.90GHz × 4,                 with an Asus s400c Notebook. 
+Time Data Simulation: 5.178080797195435 
+Time Data Modification: 0.1728665828704834 
+Time Prepare Nets: 0.005263090133666992 
+Time Train Nets: 313.8478617668152 
+Time Prediction Time Analysis: 0.11747121810913086 
+Time Check Toplist: 0.0003631114959716797 
+Time Write Toplist: 1.82200026512146 
+Time Total: 321.1448142528534 

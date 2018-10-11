@@ -1,0 +1,17 @@
+#######################################################################################################################################
+#
+# Top 10 Performing Models:
+#
+# LAYER | NODES | NODES TOTAL | ACTIV | SHAPE | BATCH SIZE | LEARNING RATE | LOSS FUNC | OPTIM | HYPER LOSS | LOSS VALUE | PRED TIME
+# ___________________________________________________________________________________________________________________________________
+#   1   |   8   |      9      |  rel  |  lin  |     8      |   1.000e-03   |    MSE    | Adam  |   593.17   |    5.93    | 9.359e-05 | 
+#   1   |  12   |     13      |  rel  |  lin  |     8      |   1.000e-03   |    MSE    | Adam  |   624.37   |    6.24    | 9.516e-05 | 
+# ___________________________________________________________________________________________________________________________________|
+#
+# Global Info:
+#
+#	-analysis ID: CMS-PAS-SUS-12-026
+#	-topology:    T1tttt
+#	-hyperloss:   1e3 time + e^(5*(loss-intloss))
+#	-pred time:   mean over 100 single sigma predictions
+#	-size sets:   test set 0, training set 0, validation set 0

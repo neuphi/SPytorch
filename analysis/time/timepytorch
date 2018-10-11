@@ -1,0 +1,10 @@
+    4.6929SIM_DATA_SIZE 10000
+ 
+Time Full    4.692896127700806
+... per Sample: 0.00046928961277008057
+Time Pytorch 0.002249002456665039 (Tensor with Length sample size)
+... per Sample: 2.249002456665039e-07
+Time Batch   1.7850360870361328 (sample size List with every single element)
+... per Sample: 0.00017850360870361328
+Time Chunk   0.06260466575622559 (100 element list with (sample size/100) element tensors)
+... per Sample: 0.00017850360870361328
