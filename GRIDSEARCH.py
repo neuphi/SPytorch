@@ -135,25 +135,26 @@ for loss_fn_i in LOSS_FUNCTIONS:
                     loss_minibatch.backward()
                     optimizer.step()
                   #fill loss lists with data
-                  netdata["model"].cpu()
-                  netdata["model"].cpu()
+                  #netdata["model"].cpu()
+                  #netdata["model"].cpu()
                   if loss_fn_i == "MSE":
                       #netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set[:,:2]), training_set[:,2]).detach().numpy()))
-                      netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set_var), tr_labels_var).detach().numpy()))
-                      netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](test_set_var), test_labels_var).detach().numpy()))
+                      netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set_var), tr_labels_var).cpu().detach().numpy()))
+                      netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](test_set_var), test_labels_var).cpu().detach().numpy()))
                   else:
                       netdata["plytr"].append(loss_fn(netdata["model"](training_set_var), tr_labels_var).cpu().detach().numpy())
                       netdata["plyte"].append(loss_fn(netdata["model"](test_set_var), test_labels_var).cpu().detach().numpy())                      
-                  if CUDA:
-                      netdata["model"].cuda()
-                      netdata["model"].cuda()
+                  #if CUDA:
+                  #    netdata["model"].cuda()
+                  #    netdata["model"].cuda()
                   #save validation
-                  netdata["model"].cpu()
+                  #netdata["model"].cpu()
                   vall_dummy = loss_fn(netdata["model"](validation_set_var), validation_labels_var).detach().numpy()
-                  if CUDA:
-                      netdata["model"].cuda()
+                  #if CUDA:
+                  #    netdata["model"].cuda()
                   if netdata["lossv"] > vall_dummy:
                       netdata["lossv"] = vall_dummy
+                  print (next(netdata["model"].parameters()).is_cuda)    
                 t_training = t_training + (time.time() - t_training_dummy)      
                 #make sample predictions (val), measure time (sample size)
                 t_timeanalysis_dummy = time.time()
