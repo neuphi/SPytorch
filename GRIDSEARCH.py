@@ -136,13 +136,13 @@ for loss_fn_i in LOSS_FUNCTIONS:
                   #fill loss lists with data
                   if loss_fn_i == "MSE":
                       #netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set[:,:2]), training_set[:,2]).detach().numpy()))
-                      netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set_var), tr_labels_var).detach().numpy()))
-                      netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](test_set_var), test_labels_var).detach().numpy()))
+                      netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set_var), tr_labels_var).cpu().detach().numpy()))
+                      netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](test_set_var), test_labels_var).cpu().detach().numpy()))
                   else:
-                      netdata["plytr"].append(loss_fn(netdata["model"](training_set_var), tr_labels_var).detach().numpy())
-                      netdata["plyte"].append(loss_fn(netdata["model"](test_set_var), test_labels_var).detach().numpy())                      
+                      netdata["plytr"].append(loss_fn(netdata["model"](training_set_var), tr_labels_var).cpu().detach().numpy())
+                      netdata["plyte"].append(loss_fn(netdata["model"](test_set_var), test_labels_var).cpu().detach().numpy())                      
                   #save validation
-                  vall_dummy = loss_fn(netdata["model"](validation_set_var), validation_labels_var).detach().numpy()
+                  vall_dummy = loss_fn(netdata["model"](validation_set_var), validation_labels_var).cpu().detach().numpy()
                   if netdata["lossv"] > vall_dummy:
                       netdata["lossv"] = vall_dummy
                 t_training = t_training + (time.time() - t_training_dummy)      
