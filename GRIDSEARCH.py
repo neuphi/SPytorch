@@ -137,6 +137,7 @@ for loss_fn_i in LOSS_FUNCTIONS:
                   #fill loss lists with data
                   #netdata["model"].cpu()
                   #netdata["model"].cpu()
+                  print (next(netdata["model"].parameters()).is_cuda)                      
                   if loss_fn_i == "MSE":
                       #netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set[:,:2]), training_set[:,2]).detach().numpy()))
                       netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](training_set_var), tr_labels_var).cpu().detach().numpy()))
@@ -149,7 +150,7 @@ for loss_fn_i in LOSS_FUNCTIONS:
                   #    netdata["model"].cuda()
                   #save validation
                   #netdata["model"].cpu()
-                  vall_dummy = loss_fn(netdata["model"](validation_set_var), validation_labels_var).detach().numpy()
+                  vall_dummy = loss_fn(netdata["model"](validation_set_var), validation_labels_var).cpu().detach().numpy()
                   #if CUDA:
                   #    netdata["model"].cuda()
                   if netdata["lossv"] > vall_dummy:
