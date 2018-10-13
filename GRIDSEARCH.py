@@ -122,7 +122,7 @@ for loss_fn_i in LOSS_FUNCTIONS:
                 #loop over epochs
                 t_training_dummy = time.time() 
                 for epoch in range(EPOCH_NUM):
-                  print(".")  
+                  print("epoch ", epoch, " nodes ", nodes, " layers ", layers, " shape ", shape)  
                   #loop over trainloader
                   for i, data in enumerate(trainloader):
                     #make data accassable for model
