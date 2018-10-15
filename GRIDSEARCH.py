@@ -118,15 +118,19 @@ for loss_fn_i in LOSS_FUNCTIONS:
                 optimizer = initopt(optimizer_i, netdata['model'], learning_rate)
                 #define trainloader
                 trainloader = DataLoader(training_set, batch_size=minibatch, shuffle=True, num_workers=4)
+                if CUDA: trainloader.cuda()
                 t_prepnets = t_prepnets + (time.time() - t_prepnets_dummy)
                 #loop over epochs
                 t_training_dummy = time.time() 
                 for epoch in range(EPOCH_NUM):
                   print("epoch ", epoch, " nodes ", nodes, " layers ", layers, " shape ", shape)  
                   #loop over trainloader
-                  for i, data in enumerate(trainloader):
+                  for i, data in enumerate(trainloader):  
                     #make data accassable for model
                     inputs, labels = modelinputs(data)  
+                    if CUDA: 
+                        inputs.cuda()
+                        labels.cuda()
                     #do predictions and calculate loss
                     labels_pred = netdata["model"](inputs)
                     loss_minibatch = loss_fn(labels_pred, labels)
