@@ -16,6 +16,11 @@ from system.misc import *
 from system.initnet import *
 from system.printtorch import *
 
+#################### CHOOSE DEVICE ###############################
+
+if CUDA:
+    device = torch.device("cuda:2") 
+
 #################### INITIALIZE CLOCK ############################
 
 t_simulatedata = 0
@@ -64,22 +69,22 @@ for i in range(len(validation_set[:,0])): val_labels[i] = validation_set[i,2]
 test_labels = torch.zeros(len(test_set[:,0]), DIM_OUT)
 for i in range(len(test_set[:,0])): test_labels[i] = test_set[i,2]
 
+training_set_var = Variable(training_set[:,:2])
+tr_labels_var = Variable(tr_labels)
+test_set_var = Variable(test_set[:,:2])
+test_labels_var = Variable(test_labels)
+validation_set_var = Variable(validation_set[:,:2])
+validation_labels_var = Variable(val_labels)
+
 if CUDA:
-    training_set_var = Variable(training_set[:,:2].cuda())
-    tr_labels_var = Variable(tr_labels.cuda())
-    test_set_var = Variable(test_set[:,:2].cuda())
-    test_labels_var = Variable(test_labels.cuda())
-    validation_set_var = Variable(validation_set[:,:2].cuda())
-    validation_labels_var = Variable(val_labels.cuda())
-else:
-    training_set_var = Variable(training_set[:,:2])
-    tr_labels_var = Variable(tr_labels)
-    test_set_var = Variable(test_set[:,:2])
-    test_labels_var = Variable(test_labels)
-    validation_set_var = Variable(validation_set[:,:2])
-    validation_labels_var = Variable(val_labels)
-
-
+    training_set_var.to(device)
+    tr_labels_var.to(device)
+    test_set_var.to(device)
+    test_labels_var.to(device)
+    validation_set_var.to(device)
+    validation_labels_var.to(device)
+    
+    
 t_moddata = time.time() - t_moddata
 
 ##################### TRAINING ###################################
@@ -113,7 +118,7 @@ for loss_fn_i in LOSS_FUNCTIONS:
                         learning_rate
                         )  
                 if CUDA:
-                    netdata['model'].cuda()
+                    netdata['model'].to(device)
                 loss_fn = initloss(loss_fn_i)
                 optimizer = initopt(optimizer_i, netdata['model'], learning_rate)
                 #define trainloader
@@ -128,8 +133,8 @@ for loss_fn_i in LOSS_FUNCTIONS:
                     #make data accassable for model
                     inputs, labels = modelinputs(data)  
                     if CUDA: 
-                        inputs.cuda()
-                        labels.cuda()
+                        inputs.to(device)
+                        labels.to(device)
                     #do predictions and calculate loss
                     labels_pred = netdata["model"](inputs)
                     loss_minibatch = loss_fn(labels_pred, labels)
