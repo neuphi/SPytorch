@@ -116,7 +116,7 @@ for loss_fn_i in LOSS_FUNCTIONS:
                 loss_fn = initloss(loss_fn_i)
                 optimizer = initopt(optimizer_i, netdata['model'], learning_rate)
                 #define trainloader
-                trainloader = DataLoader(training_set, batch_size=minibatch, shuffle=True, num_workers=4)
+                trainloader = DataLoader(training_set, batch_size=minibatch, shuffle=True, num_workers=0)
                 t_prepnets = t_prepnets + (time.time() - t_prepnets_dummy)
                 #loop over epochs
                 t_training_dummy = time.time() 

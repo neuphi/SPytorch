@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import argparse
 import torch
+torch.multiprocessing.set_start_method("spawn")
 
 #SET DEVICE
 
