@@ -1,5 +1,19 @@
 import numpy as np
 import torch
+import argparse
+import torch
+
+#SET DEVICE
+
+parser = argparse.ArgumentParser(description='PyTorch Gridsearch')
+parser.add_argument('--disable-cuda', action='store_true',
+                    help='Disable CUDA')
+args = parser.parse_args()
+args.device = None
+if not args.disable_cuda and torch.cuda.is_available():
+    args.device = torch.device('cuda:2')
+else:
+    args.device = torch.device('cpu')
 
 # SET PATHS
 

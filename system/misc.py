@@ -7,6 +7,7 @@ from random import shuffle
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+import argparse
 
 class Net(nn.Module):
     def __init__(self):
@@ -91,8 +92,8 @@ def initopt (optimizer_i, model, learning_rate):
     return optimizer
 
 def modelinputs (data):
-  inputs    = torch.zeros(torch.numel(data[:,0]), DIM_IN)
-  labels    = torch.zeros(torch.numel(data[:,0]), DIM_OUT)
+  inputs    = torch.zeros(torch.numel(data[:,0]), DIM_IN, device=args.device)
+  labels    = torch.zeros(torch.numel(data[:,0]), DIM_OUT, device=args.device)
   for j in range(torch.numel(data[:,0])):
     inputs[j][0] = data[j][0]
     inputs[j][1] = data[j][1]
@@ -133,7 +134,7 @@ def SplitData(dataset):
 
 
 def ModDataTorch(dataset):
-    dataset_torch = torch.zeros(len(dataset), DIM_IN+DIM_OUT)
+    dataset_torch = torch.zeros(len(dataset), DIM_IN+DIM_OUT, device=args.device)
     for i in range(len(dataset)):        
         dataset_torch[i][:2] = torch.from_numpy(dataset[i][0][:2])
         dataset_torch[i][2] = dataset[i][1]                
