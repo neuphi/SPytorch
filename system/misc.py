@@ -98,12 +98,8 @@ def modelinputs (data):
     inputs[j][0] = data[j][0]
     inputs[j][1] = data[j][1]
     labels[j]    = data[j][2]
-  if CUDA:
-    inputs = Variable(inputs.cuda())
-    labels = Variable(labels.cuda())
-  else:
-    inputs = Variable(inputs)
-    labels = Variable(labels)
+  inputs = Variable(inputs)
+  labels = Variable(labels)
   return inputs, labels
 
 def SimulateData():
