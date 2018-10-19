@@ -12,7 +12,7 @@ parser.add_argument('--disable-cuda', action='store_true',
 args = parser.parse_args()
 args.device = None
 if not args.disable_cuda and torch.cuda.is_available():
-    devicenmbr = ("Which GPU to use?")
+    devicenmbr = input("Which GPU to use?")
     args.device = torch.device('cuda:'+devicenmbr)
 else:
     args.device = torch.device('cpu')
