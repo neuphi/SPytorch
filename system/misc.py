@@ -135,3 +135,11 @@ def ModDataTorch(dataset):
         dataset_torch[i][:2] = torch.from_numpy(dataset[i][0][:2])
         dataset_torch[i][2] = dataset[i][1]                
     return dataset_torch
+
+def ModDataKeras(dataset):
+    data = []
+    labels = []
+    for i in range(len(dataset)):
+        data.append(dataset[i][0])
+        labels.append(dataset[i][1])
+    return data, labels
