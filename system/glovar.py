@@ -88,5 +88,5 @@ LOSS_FUNCTIONS = ["MSE", "L1"] #["MSE"]
 OPTIMIZERS = ["Adam", "SGD"] #["Adam"]
 MINIBATCH_SIZES = [1,8,32]
 ACTIVATION_FUNCTIONS = ["rel", "tah", "sig"] #["lin","rel"]
-SHAPES = ["lin","trap","ramp"] #["lin","trap","ramp"]
+SHAPES = ["trap"] #["lin","trap","ramp"]
 #netdata = {}
