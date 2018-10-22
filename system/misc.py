@@ -84,11 +84,15 @@ def hyperloss_lin(time, loss, intloss):
 def initloss (loss_fn_i):
     if loss_fn_i == "MSE":
         loss_fn = nn.MSELoss(size_average=True, reduce=True)
+    if loss_fn_i == "L1":
+        loss_fn = nn.L1Loss(size_average=True, reduce=True)
     return loss_fn
 
 def initopt (optimizer_i, model, learning_rate):
     if optimizer_i == "Adam":
       optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    if optimizer_i == "SGD":
+      optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)  
     return optimizer
 
 def modelinputs (data):

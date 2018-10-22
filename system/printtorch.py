@@ -112,7 +112,7 @@ def StoreNetData(anadir, entry):
 	plt.plot(x_axis, y_axis_trn, label = 'Train Loss')
 	plt.plot(x_axis, y_axis_val, label = 'Test Loss')
 	plt.legend()
-	plt.savefig(netdir + "/loss{}.png".format(j))
+	plt.savefig(netdir + "/loss{}.eps".format(j), format = 'eps')
 	
 	# WRITE INFO
 
