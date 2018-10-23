@@ -86,7 +86,8 @@ LR_STEP = 9e-3
 LEARN_RATE     = [1e-1, 1e-2, 1e-3, 1e-4]#np.arange(LR_MIN, LR_MAX, LR_STEP)
 LOSS_FUNCTIONS = ["MSE", "L1"] #["MSE"]
 OPTIMIZERS = ["Adam", "SGD"] #["Adam"]
-MINIBATCH_SIZES = int(input("Minibatch Size?"))
+MINIBATCH_SIZES = []
+MINIBATCH_SIZES.append(int(input("Minibatch Size?")))
 ACTIVATION_FUNCTIONS = ["rel", "tah", "sig"] #["lin","rel"]
 SHAPES = ["trap"] #["lin","trap","ramp"]
 #netdata = {}
