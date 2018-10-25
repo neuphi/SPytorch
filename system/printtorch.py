@@ -105,6 +105,7 @@ def StoreNetData(anadir, entry):
 	y_axis_trn 	= entry["plytr"]
 	y_axis_val 	= entry["plyte"]
 
+	plt.clf()
 	plt.figure(j)
 	plt.title('Loss Function', fontsize=20)
 	plt.xlabel('Epochs')

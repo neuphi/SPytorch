@@ -83,11 +83,12 @@ NOD = range(NOD_MIN, NOD_MAX+1,NOD_STEP)
 LR_MIN = 1e-3
 LR_MAX = 1.0001e-1
 LR_STEP = 9e-3
-LEARN_RATE     = [1e-1, 1e-2, 1e-3, 1e-4]#np.arange(LR_MIN, LR_MAX, LR_STEP)
-LOSS_FUNCTIONS = ["MSE", "L1"] #["MSE"]
-OPTIMIZERS = ["Adam", "SGD"] #["Adam"]
-MINIBATCH_SIZES = []
-MINIBATCH_SIZES.append(int(input("Minibatch Size?")))
-ACTIVATION_FUNCTIONS = ["rel", "tah", "sig"] #["lin","rel"]
+LEARN_RATE     = [1e-3]#np.arange(LR_MIN, LR_MAX, LR_STEP)
+LOSS_FUNCTIONS = ["MSE"] #["MSE", "L1"]
+OPTIMIZERS = ["Adam"] #["Adam", "SGD"]
+MINIBATCH_SIZES = [1,8,32,64,128,256,512,1024]
+#MINIBATCH_SIZES = []
+#MINIBATCH_SIZES.append(int(input("Minibatch Size?")))
+ACTIVATION_FUNCTIONS = ["rel"] #["lin","rel", "tah", "sig"]
 SHAPES = ["trap"] #["lin","trap","ramp"]
 #netdata = {}
