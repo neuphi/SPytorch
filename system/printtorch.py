@@ -3,7 +3,7 @@
 """
 Created on Thu Sep 27 11:13:54 2018
 
-@author: felix
+@author: philipp
 """
 
 from system.glovar import *
@@ -21,6 +21,8 @@ def NetIsTopPerformer(netdata):
 
 	if len(toplist) < 10:
 		return True
+
+	#doesnt need to loop over every entry: if toplist[max_int]["hloss"] > ..
 
 	for entry in toplist:
 		if entry["hloss"] > netdata["hloss"]:
@@ -40,7 +42,6 @@ def UpdateToplist(netdata):
 		toplist[9] = netcopy
 
 	toplist = sorted(toplist, key = lambda data: data["hloss"])
-		
 
 
 
@@ -157,7 +158,6 @@ def WriteToplist():
 		StoreNetData(anadir, entry)
 
 
-
 if __name__ == "__main__":
 
 	import initnet	
@@ -187,4 +187,4 @@ if __name__ == "__main__":
 		if NetIsTopPerformer(netdata):
 			UpdateToplist(netdata)
 
-WriteToplist()
+	WriteToplist()

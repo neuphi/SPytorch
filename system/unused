@@ -1,0 +1,88 @@
+
+
+##################### - GRID SEARCH - #######################
+
+list_training, list_validation, list_test = DataSplit(DataSimulate(EXP), 0.8, 0.1, 0.1)
+saveData([list_training, list_validation, list_test])
+
+tensor_training_set   	 = DataConvert(list_training)
+tensor_validation_set 	 = DataConvert(list_validation)
+tensor_test_set		  	 = DataConvert(list_test)
+
+#tensor_training_labels   = torch.tensor([tensor_training_set[i,2] for i in range(len(tensor_training_set[:,0]))], requires_grad=True, device=args.device)
+#tensor_validation_labels = torch.tensor([tensor_validation_set[i,2] for i in range(len(tensor_validation_set[:,0]))], requires_grad=True, device=args.device)
+#tensor_test_labels 	  = torch.tensor([tensor_test_set[i,2] for i in range(len(tensor_test_set[:,0]))], requires_grad=True, device=args.device)
+
+l1, l2, l3 = len(tensor_training_set[:,0]), len(tensor_validation_set[:,0]), len(tensor_test_set[:,0])
+
+tensor_training_labels = torch.zeros(l1, 1, device=args.device)
+for i in range(l1): tensor_training_labels[i] = tensor_training_set[i,2]
+
+tensor_validation_labels = torch.zeros(l2, 1, device=args.device)
+for i in range(l2): tensor_validation_labels[i] = tensor_validation_set[i,2]
+
+tensor_test_labels = torch.zeros(l3, 1, device=args.device)
+for i in range(l3): tensor_test_labels[i] = tensor_test_set[i,2]
+
+var_training_set	  	 = Variable(tensor_training_set[:,:2])
+var_training_labels	  	 = Variable(tensor_training_labels)
+var_test_set 	 	 	 = Variable(tensor_test_set[:,:2])
+var_test_labels 	  	 = Variable(tensor_test_labels)
+var_validation_set	  	 = Variable(tensor_validation_set[:,:2])
+var_validation_labels 	 = Variable(tensor_validation_labels)
+
+if CUDA:
+    var_training_set.to(device=args.device)
+    var_training_labels.to(device=args.device)
+    var_test_set.to(device=args.device)
+    var_test_labels.to(device=args.device)
+    var_validation_set.to(device=args.device)
+    var_validation_labels.to(device=args.device)
+
+
+##################### - MISC - #######################
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        #super().__init__()
+        self.hidden1 = nn.Linear(DIM_IN, DIM_HIDDEN_1)
+        self.hidden2 = nn.Linear(DIM_HIDDEN_1, DIM_HIDDEN_2)
+        self.hidden3 = nn.ReLU()
+        self.hidden4 = nn.Linear(DIM_HIDDEN_2, DIM_HIDDEN_3)
+        self.hidden5 = nn.ReLU()
+        self.out = nn.Linear(DIM_HIDDEN_3, DIM_OUT)
+
+    def forward(self, x):
+        x = self.hidden1(x)
+        x = self.hidden2(x)
+        x = self.hidden3(x)
+        x = self.hidden4(x)
+        x = self.hidden5(x)
+        x = self.out(x)
+        return x
+
+
+
+INT_LOSS = 5
+INT_LOSS_SQ = 25
+HID_LAY_MAX = int(input("HID_LAY_MAX?"))
+HID_LAY_MIN = int(input("HID_LAY_MIN?"))
+HID_LAY_STEP = 1
+HID_LAY = range(HID_LAY_MIN,HID_LAY_MAX+1,HID_LAY_STEP)
+NOD_MAX = 20
+NOD_MIN = 20
+NOD_STEP = 4
+NOD = range(NOD_MIN, NOD_MAX+1,NOD_STEP)
+LR_MIN = 1e-3
+LR_MAX = 1.0001e-1
+LR_STEP = 9e-3
+LEARN_RATE     = [1e-3]#np.arange(LR_MIN, LR_MAX, LR_STEP)
+LOSS_FUNCTIONS = ["MSE"] #["MSE", "L1"]
+OPTIMIZERS = ["Adam"] #["Adam", "SGD"]
+MINIBATCH_SIZES = [1,8,32,64,128,256,512,1024]
+#MINIBATCH_SIZES = []
+#MINIBATCH_SIZES.append(int(input("Minibatch Size?")))
+ACTIVATION_FUNCTIONS = ["rel"] #["lin","rel", "tah", "sig"]
+SHAPES = ["trap"] #["lin","trap","ramp"]
+

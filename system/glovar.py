@@ -67,28 +67,3 @@ ANALYSIS_SAMPLE_SIZE = 100
 HYPERLOSS_FUNCTION   = "lin" #"lin", "exp"
 
 ############
-
-# HYPERPARAMETERS
-
-INT_LOSS = 5
-INT_LOSS_SQ = 25
-HID_LAY_MAX = int(input("HID_LAY_MAX?"))
-HID_LAY_MIN = int(input("HID_LAY_MIN?"))
-HID_LAY_STEP = 1
-HID_LAY = range(HID_LAY_MIN,HID_LAY_MAX+1,HID_LAY_STEP)
-NOD_MAX = 20
-NOD_MIN = 20
-NOD_STEP = 4
-NOD = range(NOD_MIN, NOD_MAX+1,NOD_STEP)
-LR_MIN = 1e-3
-LR_MAX = 1.0001e-1
-LR_STEP = 9e-3
-LEARN_RATE     = [1e-3]#np.arange(LR_MIN, LR_MAX, LR_STEP)
-LOSS_FUNCTIONS = ["MSE"] #["MSE", "L1"]
-OPTIMIZERS = ["Adam"] #["Adam", "SGD"]
-MINIBATCH_SIZES = [1,8,32,64,128,256,512,1024]
-#MINIBATCH_SIZES = []
-#MINIBATCH_SIZES.append(int(input("Minibatch Size?")))
-ACTIVATION_FUNCTIONS = ["rel"] #["lin","rel", "tah", "sig"]
-SHAPES = ["trap"] #["lin","trap","ramp"]
-#netdata = {}
