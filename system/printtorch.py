@@ -8,6 +8,7 @@ Created on Thu Sep 27 11:13:54 2018
 
 from system.glovar import *
 from system.misc import *
+import system.pathfinder as path
 import os
 import matplotlib.pyplot as plt
 
@@ -132,7 +133,8 @@ def WriteToplist():
 
 	# MAKE DIR
 	
-	anadir = 'analysis/topology/{}'.format(TXNAME)
+	#anadir = 'analysis/topology/{}'.format(TXNAME)
+	anadir = path.topology + TXNAME
 
 	if not os.path.exists(anadir):
 		print("makedir " + anadir)

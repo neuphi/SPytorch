@@ -3,6 +3,7 @@
 def GetNetConfigurationNum(GridParameter):
 	return len(GridParameter['loss_func']) * len(GridParameter['optimizer']) * len(GridParameter['minibatch']) * len(GridParameter['lera_iter']) * len(GridParameter['acti_func']) * len(GridParameter['nodes_shape']) * len(GridParameter['layer_iter']) * len(GridParameter['nodes_iter'])
 
+
 def LoadParameters():
 
 	GridParameter = {}
@@ -11,9 +12,9 @@ def LoadParameters():
 	GridParameter['layer_max']	 = 4
 	GridParameter['layer_min']	 = 1
 	GridParameter['layer_step']	 = 1
-	GridParameter['nodes_max']	 = 20
-	GridParameter['nodes_min']	 = 20
-	GridParameter['nodes_step']	 = 4
+	GridParameter['nodes_max']	 = 10
+	GridParameter['nodes_min']	 = 4
+	GridParameter['nodes_step']	 = 2
 	GridParameter['lera_max']	 = 1.0001e-1
 	GridParameter['lera_min']	 = 1e-3
 	GridParameter['lera_step']	 = 9e-3

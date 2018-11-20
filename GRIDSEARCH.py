@@ -15,6 +15,17 @@ from system.parameters import *
 
 import system.pathfinder as path
 
+parser = argparse.ArgumentParser(description='PyTorch Gridsearch')
+parser.add_argument('--disable-cuda', action='store_true',
+                    help='Disable CUDA')
+args = parser.parse_args()
+args.device = None
+if not args.disable_cuda and torch.cuda.is_available():
+    devicenmbr = input("Which GPU to use?")
+    args.device = torch.device('cuda:'+devicenmbr)
+else:
+    args.device = torch.device('cpu')
+
 ######################## GENERATE DATA ################################
 
 TimerZero('all')
@@ -126,12 +137,15 @@ for loss_fn_i in GridParameter['loss_func']:
 									UpdateToplist(netdata)   
 								
 								TimerAddSave('checktop')
-
-								TimerInit('writetop')
-								#WriteToplist()
-								TimerAddSave('writetop')
 								
 								counter += 1
+
+##################### SAVE RESULTS ################################
+
+TimerInit('writetop')
+WriteToplist()
+TimerAddSave('writetop')
+
 
 ##################### TIME ANALYSIS ###############################
 
