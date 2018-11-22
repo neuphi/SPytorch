@@ -13,7 +13,6 @@ import argparse
 
 
 
-
 def saveData(data):
     file = open(PATH_DATA + "data.pcl","wb")
     pickle.dump(len(data), file)

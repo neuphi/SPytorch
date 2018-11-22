@@ -1,0 +1,9 @@
+torch.cuda. [...]
+
+empty_cache()					releases unoccupied cached memory held by caching allocator, so 								those can be used by other GPU applications and visible in 
+								nvidia-smi
+
+get_device_capabiliy( device )	get cuda capability
+								returns tuple ( int, int ), major and minor cuda capabilites
+
+

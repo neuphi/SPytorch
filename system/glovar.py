@@ -6,7 +6,16 @@ torch.multiprocessing.set_start_method("spawn")
 
 #SET DEVICE
 
-
+parser = argparse.ArgumentParser(description='PyTorch Gridsearch')
+parser.add_argument('--disable-cuda', action='store_true',
+                    help='Disable CUDA')
+args = parser.parse_args()
+args.device = None
+if not args.disable_cuda and torch.cuda.is_available():
+    devicenmbr = input("Which GPU to use?")
+    args.device = torch.device('cuda:'+devicenmbr)
+else:
+    args.device = torch.device('cpu')
 
 # SET PATHS
 

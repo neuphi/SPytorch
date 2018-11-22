@@ -15,22 +15,15 @@ from system.parameters import *
 
 import system.pathfinder as path
 
-parser = argparse.ArgumentParser(description='PyTorch Gridsearch')
-parser.add_argument('--disable-cuda', action='store_true',
-                    help='Disable CUDA')
-args = parser.parse_args()
-args.device = None
-if not args.disable_cuda and torch.cuda.is_available():
-    devicenmbr = input("Which GPU to use?")
-    args.device = torch.device('cuda:'+devicenmbr)
-else:
-    args.device = torch.device('cpu')
 
 ######################## GENERATE DATA ################################
 
 TimerZero('all')
 TimerInit('total')
 TimerInit('gendata')
+
+
+print("\ncuda in use" if CUDA else "\nno cuda")
 
 print("\ngenerate data .. ", end = "", flush = True)
 
@@ -43,19 +36,25 @@ print("done after {}".format(TimerGetStr('gendata')[0]))
 
 print("initiating grid search\n")
 
-
 GridParameter = LoadParameters()
 
 counter    = 1
 totalcount = GetNetConfigurationNum(GridParameter)
 
 for loss_fn_i in GridParameter['loss_func']:
+
 	for optimizer_i in GridParameter['optimizer']:
+
 		for minibatch in GridParameter['minibatch']:
+
 			for learning_rate in GridParameter['lera_iter']:
+
 				for activ in GridParameter['acti_func']:
+
 					for shape in GridParameter['nodes_shape']:
+
 						for layers in GridParameter['layer_iter']:
+
 							for nodes in GridParameter['nodes_iter']:
 				                #initialize net, lossfunction and optimizer       
 
@@ -145,7 +144,6 @@ for loss_fn_i in GridParameter['loss_func']:
 TimerInit('writetop')
 WriteToplist()
 TimerAddSave('writetop')
-
 
 ##################### TIME ANALYSIS ###############################
 

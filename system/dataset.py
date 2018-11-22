@@ -12,8 +12,6 @@ from system.errorlog import *
 
 import system.pathfinder as path
 
-
-
 def DataConvert(dataset_list):
 	lgth = len(dataset_list)
 	dataset_torch = torch.zeros(lgth, 3, device=args.device)
