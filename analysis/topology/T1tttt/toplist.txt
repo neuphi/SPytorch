@@ -4,16 +4,16 @@
 #
 # LAYER | NODES | NODES TOTAL | ACTIV | SHAPE | BATCH SIZE | LEARNING RATE | LOSS FUNC | OPTIM | HYPER LOSS | LOSS VALUE | PRED TIME
 # ___________________________________________________________________________________________________________________________________
-#   3   |   2   |      5      |  rel  | trap  |     2      |   1.000e-03   |    MSE    | Adam  |  1510.04   |   15.08    | 2.019e-03 | 
-#   3   |   4   |      9      |  rel  | trap  |     4      |   1.000e-03   |    MSE    | Adam  |  1593.88   |   15.90    | 3.571e-03 | 
-#   2   |   4   |      7      |  rel  | trap  |     2      |   1.000e-03   |    MSE    | Adam  |  1597.48   |   15.96    | 1.867e-03 | 
-#   3   |   4   |      9      |  rel  | trap  |     2      |   1.000e-03   |    MSE    | Adam  |  1598.10   |   15.96    | 2.190e-03 | 
-#   4   |   2   |      7      |  rel  | trap  |     8      |   1.000e-03   |    MSE    | Adam  |  1598.94   |   15.94    | 4.998e-03 | 
-#   1   |   2   |      3      |  rel  | trap  |     1      |   1.000e-03   |    MSE    | Adam  |  1600.88   |   16.01    | 8.379e-05 | 
-#   4   |   4   |     11      |  rel  | trap  |     1      |   1.000e-03   |    MSE    | Adam  |  1602.62   |   16.01    | 1.443e-03 | 
-#   4   |   4   |     11      |  rel  | trap  |     4      |   1.000e-03   |    MSE    | Adam  |  1613.87   |   16.10    | 3.977e-03 | 
-#   3   |   4   |      9      |  rel  | trap  |     8      |   1.000e-03   |    MSE    | Adam  |  1617.41   |   16.13    | 4.783e-03 | 
-#   1   |   4   |      5      |  rel  | trap  |     1      |   1.000e-03   |    MSE    | Adam  |  1623.62   |   16.23    | 1.705e-04 | 
+#   3   |   4   |      9      |  rel  | trap  |     16     |   1.000e-03   |    MSE    | Adam  |   542.58   |    5.42    | 7.114e-04 | 
+#   2   |   2   |      3      |  rel  | trap  |     32     |   1.000e-03   |    MSE    | Adam  |  1269.98   |   12.69    | 1.379e-03 | 
+#   3   |   2   |      5      |  rel  | trap  |     32     |   1.000e-03   |    MSE    | Adam  |  1312.64   |   13.11    | 1.647e-03 | 
+#   2   |   2   |      3      |  rel  | trap  |     16     |   1.000e-03   |    MSE    | Adam  |  1410.40   |   14.10    | 2.585e-04 | 
+#   1   |   4   |      5      |  rel  | trap  |     16     |   1.000e-03   |    MSE    | Adam  |  1671.08   |   16.71    | 1.578e-04 | 
+#   3   |   4   |      9      |  rel  | trap  |     32     |   1.000e-03   |    MSE    | Adam  |  1789.95   |   17.88    | 1.809e-03 | 
+#   4   |   4   |     11      |  rel  | trap  |     16     |   1.000e-03   |    MSE    | Adam  |  1874.48   |   18.73    | 1.126e-03 | 
+#   4   |   4   |     11      |  rel  | trap  |     32     |   1.000e-03   |    MSE    | Adam  |  1918.64   |   19.16    | 2.208e-03 | 
+#   2   |   4   |      7      |  rel  | trap  |     32     |   1.000e-03   |    MSE    | Adam  |  1959.07   |   19.58    | 1.499e-03 | 
+#   1   |   4   |      5      |  rel  | trap  |     32     |   1.000e-03   |    MSE    | Adam  |  2019.69   |   20.18    | 1.276e-03 | 
 # ___________________________________________________________________________________________________________________________________|
 #
 # Global Info:
@@ -21,5 +21,5 @@
 #	-analysis ID: CMS-PAS-SUS-12-026
 #	-topology:    T1tttt
 #	-hyperloss:   1e3 time + e^(5*(loss-intloss))
-#	-pred time:   mean over 100 single sigma predictions
-#	-size sets:   test set 0, training set 0, validation set 0
+#	-pred time:   mean over 200 single sigma predictions
+#	-size sets:   test set 0.8, training set 0.1, validation set 0.1

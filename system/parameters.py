@@ -22,7 +22,7 @@ def LoadParameters():
 	GridParameter['optimizer']	 = ['Adam'] #rmsprop
 	GridParameter['acti_func']	 = ['rel']
 	GridParameter['nodes_shape'] = ['trap']
-	GridParameter['minibatch']	 = [1,2,4,8]
+	GridParameter['minibatch']	 = [16, 32] #1,2,4,8
 
 	GridParameter['layer_iter']	 = range(GridParameter['layer_min'], GridParameter['layer_max']+1, GridParameter['layer_step'])
 	GridParameter['nodes_iter']	 = range(GridParameter['nodes_min'], GridParameter['nodes_max']+1, GridParameter['nodes_step'])

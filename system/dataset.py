@@ -33,7 +33,7 @@ def DataSimulate(exp):
     for mother in np.arange(MOTHER_LOW, MOTHER_UP, MOTHER_STEP):
         for lsp in np.arange (LSP_LOW, mother, LSP_STEP): 
             masses = [[ mother*GeV, lsp*GeV], [ mother*GeV, lsp*GeV]]
-            ul     = expres.getUpperLimitFor(txname=TX, mass=masses)
+            ul     = expres.getUpperLimitFor(txname=TXNAME, mass=masses)
             if type(ul) == type(None):
                 continue
             dataset.append([np.array([mother, lsp]), ul.asNumber(fb)])
@@ -58,6 +58,19 @@ def DataSplit(dataset, split1, split2, split3):
 	subset3 = dataset[cut2 : cut3]
 
 	return subset1, subset2, subset3
+
+def DataSplitX(dataset, split):
+
+	if sum(split) != 1.:
+		ErrorRaise['split']
+		return 0, 0, 0
+
+	l = len(dataset)
+	
+	cut = [0, int(l*sum(split[:2-i]) for i in range(3)]
+	return [dataset[cut[i]:cut[i+1]] for i in range(4)]
+
+	
 
 
 def DataGeneratePackage(exp, split1, split2, split3, cuda):
@@ -120,5 +133,13 @@ def DataGeneratePackage(exp, split1, split2, split3, cuda):
 	GetDataObj['var_test_labels']	  	   = var_test_labels
 
 	return GetDataObj
+
+
+if __name__ == "__main__":
+
+	DataGeneratePackage(ANALYSIS_ID, 0.8, 0.1, 0.1, False)
+
+
+
 
 

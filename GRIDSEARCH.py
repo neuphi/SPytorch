@@ -7,13 +7,39 @@ plt.switch_backend('agg')
 from torch.utils.data import DataLoader as DataLoader
 #from torch.utils.data import Dataset as Dataset
 
+from math import sqrt as sqrt
+
 from system.misc import *
 from system.initnet import *
 from system.printtorch import *
-from system.dataset import *
+from system.dataset_new import *
 from system.parameters import *
 
+import sys
+
 import system.pathfinder as path
+
+
+parser = argparse.ArgumentParser(description='PyTorch Gridsearch')
+parser.add_argument('--disable-cuda', action = 'store_true', help = 'Disable CUDA')
+args = parser.parse_args()
+args.device = None
+if not args.disable_cuda and torch.cuda.is_available():
+	whichDevice = input("Which GPU to use?")	
+	device = torch.device('cuda:' + whichDevice)
+	use_cuda = True
+else:
+	device = torch.device('cpu')
+	use_cuda = False
+
+
+print("\nusing CUDA on {}".format(device) if use_cuda else "\nno CUDA, running solely on CPU")
+
+#use_cuda = torch.cuda.is_available()
+#device = torch.device("cuda:0" if use_cuda else "cpu")
+#cudnn.benchmark = True
+
+
 
 
 ######################## GENERATE DATA ################################
@@ -23,11 +49,12 @@ TimerInit('total')
 TimerInit('gendata')
 
 
-print("\ncuda in use" if CUDA else "\nno cuda")
 
 print("\ngenerate data .. ", end = "", flush = True)
 
-GetDataObj = DataGeneratePackage(EXP, 0.8, 0.1, 0.1, CUDA)
+GetDataObj = DataGeneratePackage(ANALYSIS_ID, TXNAME, [0.8, 0.1, 0.1], device)
+
+#sys.exit()
 
 TimerSetSave('gendata')
 print("done after {}".format(TimerGetStr('gendata')[0]))
@@ -40,6 +67,9 @@ GridParameter = LoadParameters()
 
 counter    = 1
 totalcount = GetNetConfigurationNum(GridParameter)
+
+totalworkload = ( totalcount * EPOCH_NUM / len(GridParameter['minibatch']) ) * (sum([len(GetDataObj['list_training'])/b for b in GridParameter['minibatch']]))
+progress      = 0
 
 for loss_fn_i in GridParameter['loss_func']:
 
@@ -55,79 +85,75 @@ for loss_fn_i in GridParameter['loss_func']:
 
 						for layers in GridParameter['layer_iter']:
 
-							for nodes in GridParameter['nodes_iter']:
-				                #initialize net, lossfunction and optimizer       
+							for nodes in GridParameter['nodes_iter']:       
 
 								TimerInit('prepnet')
 								
 								netdata = CreateNet(layers, nodes, activ, shape, loss_fn_i, optimizer_i, minibatch, learning_rate)  
-								netdata['model'].to(device=args.device)
+								model = netdata['model']
+								model.to(device)
 
 								loss_fn = initloss(loss_fn_i)
-								optimizer = initopt(optimizer_i, netdata['model'], learning_rate)
+								optimizer = initopt(optimizer_i, model, learning_rate)
 
-								#define trainloader
-								trainloader = DataLoader(GetDataObj['tensor_training_set'], batch_size=minibatch, shuffle=True, num_workers=0)
-								len_loader  = len(trainloader)
+								trainloader = DataLoader(GetDataObj['tensor_training'], batch_size=minibatch, shuffle=True, num_workers=0)
+								#len_loader  = len(trainloader)
 								TimerAddSave('prepnet')
 
 								TimerInit('train')
 
-			                	#loop over trainloader
-								for i, data in enumerate(trainloader):  
-									#make data accessable for model
-									inputs, labels = modelinputs(data)  
-									#do predictions and calculate loss
-									labels_pred = netdata["model"](inputs)
-									loss_minibatch = loss_fn(labels_pred, labels)
-									#make one step to optimize weights
-									optimizer.zero_grad()
-									loss_minibatch.backward()
-									optimizer.step()
-									#fill loss lists with data
-									#netdata["model"].cpu()
-									#netdata["model"].cpu()
-									#print (next(netdata["model"].parameters()).is_cuda)
+								for epoch in range(EPOCH_NUM):
+									for i, data in enumerate(trainloader):  
 
+										inputs = Variable(data.narrow(1, 0, 2)).to(device)
+										labels = Variable(data.narrow(1, 2, 1)).to(device)
+									 
+										loss_minibatch = loss_fn(model(inputs), labels)
 
-									clock  = TimerGet('total')[0]
-									left   = (clock/counter)*(totalcount-counter)
-									remain = clock/(clock+left) * 100.
-									print("\rNet %d of %d - Estimated progress: %d%% - Training epoch %d / %d        " % (counter, totalcount, remain, i+1, len_loader), end = '', flush = True)
+										optimizer.zero_grad()
+										loss_minibatch.backward()
+										optimizer.step()
+
+										progress += 1
+
+									loss_trai = loss_fn(model(GetDataObj['var_training_set']), GetDataObj['var_training_labels'])
+									loss_test = loss_fn(model(GetDataObj['var_test_set']), GetDataObj['var_test_labels'])										
+
+									if loss_fn_i == 'MSE':
+										loss_trai = sqrt(loss_trai)
+										loss_test = sqrt(loss_test)
+
+									netdata["plytr"].append(loss_trai)
+									netdata["plyte"].append(loss_test)
 									
-								if loss_fn_i == "MSE":
-									##netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](var_training_set[:,:2]), var_training_labels[:,2]).detach().numpy()))
-									netdata["plytr"].append(np.sqrt(loss_fn(netdata["model"](GetDataObj['var_training_set']), GetDataObj['var_training_labels']).cpu().detach().numpy()))
-									netdata["plyte"].append(np.sqrt(loss_fn(netdata["model"](GetDataObj['var_test_set']), GetDataObj['var_test_labels']).cpu().detach().numpy()))
+									cycl = 100.*progress/totalworkload
+									time = TimerGet('total')[0] * (totalworkload/progress - 1.)
+									
+									print("\rNet %d of %d - Estimated progress: %d%% (+%ds) - Training epoch %d / %d        " % (counter, totalcount, cycl, time, epoch, EPOCH_NUM), end = '', flush = True)
+									
+								#vall_dummy = loss_fn(netdata["model"](GetDataObj['var_validation_set']), GetDataObj['var_validation_labels']).cpu().detach().numpy()
 
-								else:
-									netdata["plytr"].append(loss_fn(netdata["model"](GetDataObj['var_training_set']), GetDataObj['var_training_labels']).cpu().detach().numpy())
-									netdata["plyte"].append(loss_fn(netdata["model"](GetDataObj['var_test_set']), GetDataObj['var_test_labels']).cpu().detach().numpy())                      
-
-								vall_dummy = loss_fn(netdata["model"](GetDataObj['var_validation_set']), GetDataObj['var_validation_labels']).cpu().detach().numpy()
-
-								if netdata["lossv"] > vall_dummy:
-									netdata["lossv"] = vall_dummy
-
-								#print (next(netdata["model"].parameters()).is_cuda)
-   
+								
 								TimerAddSave('train')      
-								#make sample predictions (val), measure time (sample size)
 								TimerInit('analysis')
 
+								TimerInit('predtime')
 								for i in range(ANALYSIS_SAMPLE_SIZE):
-									TimerInit('predtime')
-									preds = netdata["model"](GetDataObj['var_validation_set'])
-									TimerAddSave('predtime')
+									model(GetDataObj['var_validation_set'])
+								TimerAddSave('predtime')
 
 								netdata["predt"] = TimerGet('predtime')[1] / ANALYSIS_SAMPLE_SIZE
-								#fix validation if squared
+								
+								netdata['lossv'] = loss_fn(model(GetDataObj['var_validation_set']), GetDataObj['var_validation_labels'])
+								#if netdata["lossv"] > vall_dummy:
+								#	netdata["lossv"] = vall_dummy
+								
 								if loss_fn_i == "MSE":
-									netdata["lossv"] = np.sqrt(netdata["lossv"])
+									netdata["lossv"] = sqrt(netdata["lossv"])
+								print
 
 								TimerAddSave('analysis')
 
-								#save hyperloss
 								netdata["hloss"] = hyperloss(HYPERLOSS_FUNCTION, netdata["predt"], netdata["lossv"], GridParameter['maxloss'])
 
 								TimerInit('checktop')

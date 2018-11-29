@@ -76,8 +76,8 @@ def initopt (optimizer_i, model, learning_rate):
     return optimizer
 
 def modelinputs (data):
-  inputs    = torch.zeros(torch.numel(data[:,0]), DIM_IN, device=args.device)
-  labels    = torch.zeros(torch.numel(data[:,0]), DIM_OUT, device=args.device)
+  inputs    = torch.zeros(torch.numel(data[:,0]), 2, device=args.device)
+  labels    = torch.zeros(torch.numel(data[:,0]), 1, device=args.device)
   for j in range(torch.numel(data[:,0])):
     inputs[j][0] = data[j][0]
     inputs[j][1] = data[j][1]
