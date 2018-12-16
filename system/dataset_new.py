@@ -1,13 +1,14 @@
 from smodels.experiment.databaseObj import Database
 from smodels.tools.physicsUnits import GeV, fb
 from torch.autograd import Variable
-
+from torch.utils.data import Dataset, DataLoader
 from system.glovar import *
 from system.errorlog import *
 
 import system.pathfinder as path
 
 def GetExpRes(exp):
+
 	database = Database(path.database)
 	return database.getExpResults(analysisIDs = [exp])[0]
 
@@ -34,32 +35,47 @@ def DataSplit(dataset, split):
 
 	cut = [int(len(dataset)*sum(split[:i])) for i in range(4)]
 	return [dataset[cut[i]:cut[i+1]] for i in range(3)]
-	
+
+
+class data(Dataset):
+    def __init__(self, data, device):
+        self.x = torch.tensor(data).narrow(1, 0, 2).to(device)
+        self.y = torch.tensor(data).narrow(1, 2, 1).to(device)
+
+    def __len__(self):
+        return self.x.size()[0]
+
+    def __getitem__(self, idx):
+         return (self.x[idx], self.y[idx])
+
 
 def DataGeneratePackage(exp, topo, split, device):
 
 	dataset = DataSimulate(exp, topo)
 
 	list_training, list_validation, list_test = DataSplit(dataset, split)
-	
-	tensor_training 	= torch.tensor(list_training)
-	tensor_test			= torch.tensor(list_test)
-	tensor_validation	= torch.tensor(list_validation)
-	
-	var_training_set	  	 = Variable(tensor_training.narrow(1, 0, 2)).to(device)#Variable(tensor_training[:][:2])
-	var_training_labels	  	 = Variable(tensor_training.narrow(1, 2, 1)).to(device)#Variable(tensor_training[:][2])
-	var_test_set 	 	 	 = Variable(tensor_test.narrow(1, 0, 2)).to(device)#Variable(tensor_test[:][:2])
-	var_test_labels 	  	 = Variable(tensor_test.narrow(1, 2, 1)).to(device)#Variable(tensor_test[:][2])
-	var_validation_set	  	 = Variable(tensor_validation.narrow(1, 0, 2)).to(device)#Variable(tensor_validation[:][:2])
-	var_validation_labels 	 = Variable(tensor_validation.narrow(1, 2, 1)).to(device)#Variable(tensor_validation[:][2])
 
-	#if cuda:
-	#	var_training_set.to(device)
-	#	var_training_labels.to(device)
-	#	var_test_set.to(device)
-	#	var_test_labels.to(device)
-	#	var_validation_set.to(device)
-	#	var_validation_labels.to(device)
+	d = data(list_training, device)
+	
+	tensor_training 	= torch.tensor(list_training, device=device)
+	tensor_test			= torch.tensor(list_test, device=device)
+	tensor_validation	= torch.tensor(list_validation, device=device)
+
+	data_trai_set		= tensor_training.narrow(1, 0, 2).to(device)
+	data_trai_lab		= tensor_training.narrow(1, 2, 1).to(device)
+
+	data_test_set		= tensor_test.narrow(1, 0, 2).to(device)
+	data_test_lab		= tensor_test.narrow(1, 2, 1).to(device)
+
+	data_vali_set		= tensor_validation.narrow(1, 0, 2).to(device)
+	data_vali_lab		= tensor_validation.narrow(1, 2, 1).to(device)
+	
+	var_training_set	  	 = Variable(tensor_training.narrow(1, 0, 2)).to(device)
+	var_training_labels	  	 = Variable(tensor_training.narrow(1, 2, 1)).to(device)
+	var_test_set 	 	 	 = Variable(tensor_test.narrow(1, 0, 2)).to(device)
+	var_test_labels 	  	 = Variable(tensor_test.narrow(1, 2, 1)).to(device)
+	var_validation_set	  	 = Variable(tensor_validation.narrow(1, 0, 2)).to(device)
+	var_validation_labels 	 = Variable(tensor_validation.narrow(1, 2, 1)).to(device)
 
 	GetDataObj = {}
 
@@ -78,6 +94,17 @@ def DataGeneratePackage(exp, topo, split, device):
 	GetDataObj['var_training_labels']	= var_training_labels
 	GetDataObj['var_validation_labels'] = var_validation_labels
 	GetDataObj['var_test_labels']	  	= var_test_labels
+
+	GetDataObj['data_trai_set']			= data_trai_set
+	GetDataObj['data_trai_lab']			= data_trai_lab
+
+	GetDataObj['data_test_set']			= data_test_set
+	GetDataObj['data_test_lab']			= data_test_lab
+
+	GetDataObj['data_vali_set']			= data_vali_set
+	GetDataObj['data_vali_lab']			= data_vali_lab
+
+	GetDataObj['d']						= d
 
 	return GetDataObj
 

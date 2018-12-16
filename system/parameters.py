@@ -9,11 +9,11 @@ def LoadParameters():
 	GridParameter = {}
 
 	GridParameter['maxloss'] 	 = 5
-	GridParameter['layer_max']	 = 4
-	GridParameter['layer_min']	 = 1
+	GridParameter['layer_max']	 = 8
+	GridParameter['layer_min']	 = 8
 	GridParameter['layer_step']	 = 1
 	GridParameter['nodes_max']	 = 4
-	GridParameter['nodes_min']	 = 2
+	GridParameter['nodes_min']	 = 4
 	GridParameter['nodes_step']	 = 2
 	GridParameter['lera_max']	 = 1.0001e-1
 	GridParameter['lera_min']	 = 1e-3
@@ -21,8 +21,8 @@ def LoadParameters():
 	GridParameter['loss_func']	 = ['MSE']
 	GridParameter['optimizer']	 = ['Adam'] #rmsprop
 	GridParameter['acti_func']	 = ['rel']
-	GridParameter['nodes_shape'] = ['trap']
-	GridParameter['minibatch']	 = [16, 32] #1,2,4,8
+	GridParameter['nodes_shape'] = ['lin']
+	GridParameter['minibatch']	 = [16] #1,2,4,8
 
 	GridParameter['layer_iter']	 = range(GridParameter['layer_min'], GridParameter['layer_max']+1, GridParameter['layer_step'])
 	GridParameter['nodes_iter']	 = range(GridParameter['nodes_min'], GridParameter['nodes_max']+1, GridParameter['nodes_step'])

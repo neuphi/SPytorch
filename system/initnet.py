@@ -113,8 +113,9 @@ def CreateNet(layer, nodes, activ, shape, lossf, optim, minibatch, learning_rate
 	netdata["lossv"] = 1e5
 	netdata["predt"] = 1e5 
 	netdata["model"] = Net(netdata)
-	#print("\n", netdata["model"])	
+	
 	return netdata
+
 
 if __name__ == "__main__":
 	data = CreateNet(4, 3, "lin", "trap", "mse", "adam", 8, 1e-3)

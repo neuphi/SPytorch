@@ -14,33 +14,23 @@ from system.initnet import *
 from system.printtorch import *
 from system.dataset_new import *
 from system.parameters import *
-
-import sys
-
 import system.pathfinder as path
 
+torch.multiprocessing.set_start_method("spawn")
 
-parser = argparse.ArgumentParser(description='PyTorch Gridsearch')
-parser.add_argument('--disable-cuda', action = 'store_true', help = 'Disable CUDA')
-args = parser.parse_args()
-args.device = None
-if not args.disable_cuda and torch.cuda.is_available():
-	whichDevice = input("Which GPU to use?")	
-	device = torch.device('cuda:' + whichDevice)
-	use_cuda = True
+if torch.cuda.is_available():
+	devCount = torch.cuda.device_count()
+	print('CUDA available: {} GPU{} found'.format(devCount, 's' if devCount > 1 else ''))
+	whichDevice = min(int(input('Select Device: (-1 = CPU): ')), devCount - 1)
+else:
+	whichDevice = -1
+
+if whichDevice >= 0:
+	device = torch.device('cuda:' + str(whichDevice))
 else:
 	device = torch.device('cpu')
-	use_cuda = False
 
-
-print("\nusing CUDA on {}".format(device) if use_cuda else "\nno CUDA, running solely on CPU")
-
-#use_cuda = torch.cuda.is_available()
-#device = torch.device("cuda:0" if use_cuda else "cpu")
-#cudnn.benchmark = True
-
-
-
+print("\nUsing CUDA on {}".format(device) if whichDevice >= 0 else "\nNo CUDA, running on CPU")
 
 ######################## GENERATE DATA ################################
 
@@ -48,20 +38,16 @@ TimerZero('all')
 TimerInit('total')
 TimerInit('gendata')
 
-
-
-print("\ngenerate data .. ", end = "", flush = True)
+print("\nGenerate data .. ", end = "", flush = True)
 
 GetDataObj = DataGeneratePackage(ANALYSIS_ID, TXNAME, [0.8, 0.1, 0.1], device)
-
-#sys.exit()
 
 TimerSetSave('gendata')
 print("done after {}".format(TimerGetStr('gendata')[0]))
 
 ##################### TRAINING ###################################
 
-print("initiating grid search\n")
+print("Initiating grid search\n")
 
 GridParameter = LoadParameters()
 
@@ -90,24 +76,27 @@ for loss_fn_i in GridParameter['loss_func']:
 								TimerInit('prepnet')
 								
 								netdata = CreateNet(layers, nodes, activ, shape, loss_fn_i, optimizer_i, minibatch, learning_rate)  
-								model = netdata['model']
-								model.to(device)
+								model 	= netdata['model'].to(device)
 
-								loss_fn = initloss(loss_fn_i)
-								optimizer = initopt(optimizer_i, model, learning_rate)
+								#loss_fn = initloss(loss_fn_i)
+								#optimizer = initopt(optimizer_i, model, learning_rate)
 
-								trainloader = DataLoader(GetDataObj['tensor_training'], batch_size=minibatch, shuffle=True, num_workers=0)
-								#len_loader  = len(trainloader)
+								loss_fn   = nn.MSELoss(reduction = 'elementwise_mean').to(device)
+								optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)#.to(device)
+
+								#trainloader = DataLoader(GetDataObj['tensor_training'], batch_size=minibatch, shuffle=True, num_workers=0)
+								trainloader = DataLoader(GetDataObj['d'], batch_size = minibatch, shuffle = True, num_workers = 0)
+
 								TimerAddSave('prepnet')
-
 								TimerInit('train')
 
 								for epoch in range(EPOCH_NUM):
+
 									for i, data in enumerate(trainloader):  
 
-										inputs = Variable(data.narrow(1, 0, 2)).to(device)
-										labels = Variable(data.narrow(1, 2, 1)).to(device)
-									 
+										inputs = data[0]#torch.tensor(data.narrow(1, 0, 2)).to(device)
+										labels = data[1]#torch.tensor(data.narrow(1, 2, 1)).to(device)
+
 										loss_minibatch = loss_fn(model(inputs), labels)
 
 										optimizer.zero_grad()
@@ -130,10 +119,6 @@ for loss_fn_i in GridParameter['loss_func']:
 									time = TimerGet('total')[0] * (totalworkload/progress - 1.)
 									
 									print("\rNet %d of %d - Estimated progress: %d%% (+%ds) - Training epoch %d / %d        " % (counter, totalcount, cycl, time, epoch, EPOCH_NUM), end = '', flush = True)
-									
-								#vall_dummy = loss_fn(netdata["model"](GetDataObj['var_validation_set']), GetDataObj['var_validation_labels']).cpu().detach().numpy()
-
-								
 								TimerAddSave('train')      
 								TimerInit('analysis')
 
