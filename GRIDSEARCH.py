@@ -12,7 +12,7 @@ from math import sqrt as sqrt
 from system.misc import *
 from system.initnet import *
 from system.printtorch import *
-from system.dataset_new import *
+from system.dataset import *
 from system.parameters import *
 import system.pathfinder as path
 
@@ -54,7 +54,7 @@ GridParameter = LoadParameters()
 counter    = 1
 totalcount = GetNetConfigurationNum(GridParameter)
 
-totalworkload = ( totalcount * EPOCH_NUM / len(GridParameter['minibatch']) ) * (sum([len(GetDataObj['list_training'])/b for b in GridParameter['minibatch']]))
+totalworkload = ( totalcount * EPOCH_NUM / len(GridParameter['minibatch']) ) * (sum([len(GetDataObj['list_training'])/batch for batch in GridParameter['minibatch']]))
 progress      = 0
 
 for loss_fn_i in GridParameter['loss_func']:
