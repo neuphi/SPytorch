@@ -33,15 +33,67 @@ def NetIsTopPerformer(hyperLoss):
 def UpdateToplist(model, modelData, modelPerformance, searchParameter):
 
 	global toplist
+	netcopy = netdata.copy()
 
-	newEntry = [model, modelData, modelPerformance, searchParameter]
+	entry = [model, modelData, modelPerformance, searchParameter]
 
 	if len(toplist) < 10:
-		toplist.append(newEntry)
+		toplist.append(netcopy)
 	else:
-		toplist[9] = newEntry
+		toplist[9] = netcopy
 
 	toplist = sorted(toplist, key = lambda data: data["hloss"])
+
+
+					netPackage = {}
+					netPackage['model'] = model
+
+					netdata["layer"] = layer 	
+					netdata["nodes"] = nodes
+					netdata["nodto"] = 0
+					netdata["activ"] = activ
+					netdata["shape"] = shape
+					netdata["lossf"] = lossf
+					netdata["optim"] = optim
+					netdata["batch"] = batch
+					netdata["lrate"] = learningRate
+					netdata["plytr"] = []
+					netdata["plyte"] = []    
+					netdata["hloss"] = 1e5
+					netdata["lossv"] = 1e5
+					netdata["predt"] = 1e5 
+
+search data
+
+lossFunction
+optimizer
+batchSize
+learningRate
+epochNum
+sampleSize
+
+net data
+
+model
+layer
+nodes
+shape
+activationFunction
+(nodesTotal)
+
+predictionTime
+validationLoss
+hyperLoss
+validationLossPlot
+hyperLossPlot
+
+netdata['predictionTime'] = 0
+netdata['validationLoss'] = 0
+netdata['hyperLoss'] = 0
+netdata['trainingLossPlot']   = 0
+netdata['validationLossPlot'] = 0
+  
+
 
 
 def GetTableHeader(desc):

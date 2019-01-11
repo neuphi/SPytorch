@@ -1,32 +1,34 @@
 
+def GetNetConfigurationNum(searchRange):
+	return len(searchRange['layer']) * len(searchRange['nodes']) * len(searchRange['shape']) * len(searchRange['activFunc'])
 
-def GetNetConfigurationNum(GridParameter):
-	return len(GridParameter['loss_func']) * len(GridParameter['optimizer']) * len(GridParameter['minibatch']) * len(GridParameter['lera_iter']) * len(GridParameter['acti_func']) * len(GridParameter['nodes_shape']) * len(GridParameter['layer_iter']) * len(GridParameter['nodes_iter'])
+def LoadSearchRange():
 
+	layerMin, layerMax, layerStep  = 4, 4, 1
+	nodesMin, nodesMax, nodesStep  = 4, 4, 1
+	shape	  					   = ['lin']
+	activationFunction 			   = ['rel']
 
-def LoadParameters():
+	searchRange 			 = {}
+	searchRange['layer'] 	 = range(layerMin, layerMax+1, layerStep)
+	searchRange['nodes']  	 = range(nodesMin, nodesMax+1, nodesStep)
+	searchRange['shape']  	 = shape
+	searchRange['activFunc'] = activationFunction
 
-	GridParameter = {}
-
-	GridParameter['maxloss'] 	 = 5
-	GridParameter['layer_max']	 = 8
-	GridParameter['layer_min']	 = 8
-	GridParameter['layer_step']	 = 1
-	GridParameter['nodes_max']	 = 4
-	GridParameter['nodes_min']	 = 4
-	GridParameter['nodes_step']	 = 2
-	GridParameter['lera_max']	 = 1.0001e-1
-	GridParameter['lera_min']	 = 1e-3
-	GridParameter['lera_step']	 = 9e-3
-	GridParameter['loss_func']	 = ['MSE']
-	GridParameter['optimizer']	 = ['Adam'] #rmsprop
-	GridParameter['acti_func']	 = ['rel']
-	GridParameter['nodes_shape'] = ['lin']
-	GridParameter['minibatch']	 = [16] #1,2,4,8
-
-	GridParameter['layer_iter']	 = range(GridParameter['layer_min'], GridParameter['layer_max']+1, GridParameter['layer_step'])
-	GridParameter['nodes_iter']	 = range(GridParameter['nodes_min'], GridParameter['nodes_max']+1, GridParameter['nodes_step'])
-	GridParameter['lera_iter']	 = [1e-3]#range(GridParameter['lera_min'], GridParameter['lera_max']+1, GridParameter['lera_step'])
+	return searchRange
 
 
-	return GridParameter
+def LoadSearchParameters():
+
+	searchParameter 				= {}
+	searchParameter['maxLoss'] 	 	= 5
+	searchParameter['epochNum']		= 200
+	searchParameter['sampleSize']	= 10000
+	searchParameter['lossFunction']	= 'MSE'
+	searchParameter['optimizer']	= 'Adam' #rmsprop
+
+	searchParameter['batchSize']	= 16 #1,2,4,8
+	searchParameter['learningRate']	= 1e-3
+	searchParameter['dataSplit']    = [0.8, 0.1, 0.1]
+
+	return searchParameter

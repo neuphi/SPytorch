@@ -1,22 +1,28 @@
-from system.glovar import *
-from system.misc import *
+#from system.glovar import *
+#from system.misc import *
+import torch
+import torch.nn as nn
 
-class Net(nn.Module):
+def getNodesPerLayer(shape, nodes, layer):
 
-	def getNodesPerLayer(self, shp, nnod, lay, nlay):
+	net = []
+	nodes_total = 0
 
-		n = [0, 0, 0]
+	for lay in range(layer):
 
-		if shp == "lin":
+		n = [0, 0]
+		n_count = 0
 
-			n[0] = nnod
-			n[1] = nnod
-			n[2] = nnod
+		if shape == "lin":
 
-		elif shp == "trap":
+			n[0] = nodes
+			n[1] = nodes
+			n_count += nodes
 
-			k = 2 * nnod / nlay
-			m = nlay*0.5
+		elif shape == "trap":
+
+			k = 2 * nodes / layer
+			m = layer*0.5
 			
 			for i in range(2):
 			
@@ -27,96 +33,95 @@ class Net(nn.Module):
 				
 				n[i] = round(cl*k)
 
-			n[2] += n[i]
+			n_count += n[i]
 
-		elif shp == "ramp":
+		elif shape == "ramp":
 			
-			k = nnod / nlay
+			k = nodes / layer
 	
 			for i in range(2):
 	
 				cl = float(lay + i - 1)
-				n[i] = round(nnod - k * cl)
+				n[i] = round(nodes - k * cl)
 	
 			if lay == 0:
-				n[1] = nnod
+				n[1] = nodes
 			elif lay == 1:
-				n[0] = nnod
+				n[0] = nodes
 
-			n[2] += n[i]				
+			n_count += n[i]				
 
 		if lay == 0:
 			n[0] = 2
-		if lay == nlay - 1:
+		if lay == layer - 1:
 			n[1] = 1
-			n[2] = 0
+			n_count = 0
 
-		return n
+		nodes_total += n_count
+		net.append(n)
+
+	return [net, nodes_total]
 
 
-	def __init__(self, netdata):
+class Net(nn.Module):
+
+	def __init__(self, netShape, activFunc):
     	
 		super(Net, self).__init__()
+		self.seq = nn.Sequential()
 
-		lay = netdata["layer"] + 1
-		nod = netdata["nodes"]
-		act = netdata["activ"]
-		shp = netdata["shape"]
+		lastLayer = len(netShape) - 1
 
-		self.seq = nn.Sequential()		
+		for i in range(len(netShape)):
 
-		for i in range(lay):
+			nin, nout = netShape[i][0], netShape[i][1]
 			
-			nin, nout, nnum = self.getNodesPerLayer(shp, nod, i, lay)
+			if activFunc == "lin":
+				self.seq.add_module('lin{}'.format(i), nn.Linear(nin,nout))
 
-			netdata["nodto"] += nnum
+			elif activFunc == "rel":
+				self.seq.add_module('lin{}'.format(i), nn.Linear(nin,nout))
 
-			if act == "lin":
-				self.seq.add_module('lin{}'.format(i),nn.Linear(nin,nout))
-
-			elif act == "rel":
-				self.seq.add_module('lin{}'.format(i),nn.Linear(nin,nout))
-				if i < lay - 1:
-					self.seq.add_module('rel{}'.format(i),nn.ReLU())
+				if i != lastLayer:
+					self.seq.add_module('rel{}'.format(i), nn.ReLU())
                     
-			elif act == "tah":
+			elif activFunc == "tah":
 				self.seq.add_module('lin{}'.format(i),nn.Linear(nin,nout))
-				if i < lay - 1:
-					self.seq.add_module('tah{}'.format(i),nn.Tanh())
 
-			elif act == "sig":
+				if i != lastLayer:
+					self.seq.add_module('tah{}'.format(i), nn.Tanh())
+
+			elif activFunc == "sig":
 				self.seq.add_module('lin{}'.format(i),nn.Linear(nin,nout))
-				if i < lay - 1:
-					self.seq.add_module('sig{}'.format(i),nn.Sigmoid())                    
+
+				if i != lastLayer:
+					self.seq.add_module('sig{}'.format(i), nn.Sigmoid())           
+                 
 
 	def forward(self, x):
 		
 		x = self.seq(x)
 		return x
 
+def CreateNet(shape, nodes, layer, activFunc):
 
-def CreateNet(layer, nodes, activ, shape, lossf, optim, minibatch, learning_rate):
-
-	netdata = {}	
-	netdata["layer"] = layer 	
-	netdata["nodes"] = nodes
-	netdata["nodto"] = 0
-	netdata["activ"] = activ
-	netdata["shape"] = shape
-	netdata["lossf"] = lossf
-	netdata["optim"] = optim
-	netdata["batch"] = minibatch
-	netdata["lrate"] = learning_rate
-	netdata["plytr"] = []
-	netdata["plyte"] = []    
-	netdata["hloss"] = 1e5
-	netdata["lossv"] = 1e5
-	netdata["predt"] = 1e5 
-	netdata["model"] = Net(netdata)
+	netshape, nodesTotal = getNodesPerLayer(shape, nodes, layer)
+	model = Net(netshape, activFunc)
 	
-	return netdata
+	#return [model, nodesTotal]
+	return model
+
+def LoadNet(params):
+
+	#return CreateNet()
+	return 0
 
 
 if __name__ == "__main__":
-	data = CreateNet(4, 3, "lin", "trap", "mse", "adam", 8, 1e-3)
-	print(data["model"], "\n", data["nodto"])
+	#data = CreateNet(4, 3, "lin", "trap", "mse", "adam", 8, 1e-3)
+	#print(data["model"], "\n", data["nodto"])
+
+	#CreateNet(layer, nodes, shape, activ)
+	#model = Net(getNodesPerLayer(layer, nodes, shape)[0], activ)
+
+	print(getNodesPerLayer("trap",5,5))
