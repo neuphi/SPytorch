@@ -24,29 +24,30 @@ TimerInit('total')
 
 print("Initiating grid search\n")
 
-analysisId	 = 'CMS-PAS-SUS-12-026'
+#analysisId	 = 'CMS-PAS-SUS-12-026'
+analysisId	 = 'CMS-PAS-SUS-13-016'
 txName		 = 'T1tttt'
 
 device 			= setDevice()
 searchParameter = LoadSearchParameters()
 searchRange		= LoadSearchRange()
 	
-dataSplit	 	= searchParameter['dataSplit']
-learningRate 	= searchParameter['learningRate']
-whichLossFunc	= searchParameter['lossFunction']
-batchSize	 	= searchParameter['batchSize']
-epochNum	 	= searchParameter['epochNum']
-sampleSize	 	= searchParameter['sampleSize']
-maxLoss		 	= searchParameter['maxLoss']
-whichOptimizer	= searchParameter['optimizer']
+dataSplit	    = searchParameter['dataSplit']
+learningRate    = searchParameter['learningRate']
+whichLossFunc   = searchParameter['lossFunction']
+batchSize	    = searchParameter['batchSize']
+epochNum	    = searchParameter['epochNum']
+sampleSize	    = searchParameter['sampleSize']
+maxLoss		    = searchParameter['maxLoss']
+whichOptimizer  = searchParameter['optimizer']
 
 if whichLossFunc == 'MSE':
 	lossFunc = nn.MSELoss(reduction = 'elementwise_mean').to(device)
 
-shapeRange 	   = searchRange['shape']
-nodesRange 	   = searchRange['nodes']
-layerRange    = searchRange['layer']
-activFuncRange = searchRange['activFunc']
+shapeRange 	    = searchRange['shape']
+nodesRange 	    = searchRange['nodes']
+layerRange      = searchRange['layer']
+activFuncRange  = searchRange['activFunc']
 
 ######################## GENERATE DATA ################################
 
@@ -55,12 +56,13 @@ print("\nGenerate data .. ", end = "", flush = True)
 
 GetDataObj = DataGeneratePackage(analysisId, txName, dataSplit, device)
 
-trainingSet    	 = GetDataObj['var_training_set']
-trainingLabels 	 = GetDataObj['var_training_labels']
-testSet    		 = GetDataObj['var_test_set']
-testLabels 		 = GetDataObj['var_test_labels']
-validationSet    = GetDataObj['var_validation_set']
-validationLabels = GetDataObj['var_validation_labels']
+trainingSet    	 = GetDataObj['training_set']
+trainingLabels 	 = GetDataObj['training_labels']
+testSet    		 = GetDataObj['test_set']
+testLabels 		 = GetDataObj['test_labels']
+validationSet    = GetDataObj['validation_set']
+validationLabels = GetDataObj['validation_labels']
+trainingData	 = GetDataObj['dataset']
 
 TimerSetSave('gendata')
 print("done after {}".format(TimerGetStr('gendata')[0]))
@@ -68,7 +70,7 @@ print("done after {}".format(TimerGetStr('gendata')[0]))
 netCurrent   	= 1
 netTotal     	= GetNetConfigurationNum(searchRange)
 progressCurrent = 0
-progressTotal   = netTotal * epochNum * len(GetDataObj['list_training']) / batchSize
+progressTotal   = netTotal * epochNum * len(trainingData) / batchSize
 
 ##################### TRAINING ###################################
 
@@ -87,13 +89,16 @@ for activFunc in activFuncRange:
 				if whichOptimizer == 'Adam':
 					optimizer = torch.optim.Adam(model.parameters(), lr=learningRate)#.to(device)
 
-				trainloader = DataLoader(GetDataObj['d'], batch_size = batchSize, shuffle = True, num_workers = 0)
+				trainloader = DataLoader(trainingData, batch_size = batchSize, shuffle = True, num_workers = 0)
 
-				trainingLossPlot = []
-				testLossPlot 	 = []
+				trainLossPlot = []
+				testLossPlot  = []
 
 				TimerAddSave('prepnet')
 				TimerInit('train')
+
+				#lowestLoss = 99.
+				#bestModel  = model
 
 				for epoch in range(epochNum):
 
@@ -110,13 +115,16 @@ for activFunc in activFuncRange:
 
 						progressCurrent += 1
 
-					if whichLossFunc == 'MSE':
-						trainingLossPlot.append(sqrt(lossFunc(model(trainingSet), trainingLabels)))
-						testLossPlot.append(sqrt(lossFunc(model(testSet), testLabels)))
-					else:
-						trainingLossPlot.append(lossFunc(model(trainingSet), trainingLabels))
-						testLossPlot.append(lossFunc(model(testSet), testLabels))
-					
+					trainLoss = lossFunc(model(trainingSet), trainingLabels)
+					testLoss  = lossFunc(model(testSet), testLabels)
+
+					trainLossPlot.append(sqrt(trainLoss) if whichLossFunc == 'MSE' else trainLoss)
+					testLossPlot.append(sqrt(testLoss) if whichLossFunc == 'MSE' else testLoss)
+
+					#if testLoss < lowestLoss:
+					#	lowestLoss = testLoss
+					#	bestModel  = model .save_dict() ?
+
 					cycl = 100.*progressCurrent/progressTotal
 					time = TimerGet('total')[0] * (progressTotal/progressCurrent - 1.)
 					
@@ -130,19 +138,21 @@ for activFunc in activFuncRange:
 					model(validationSet)
 				TimerAddSave('predtime')
 
+				validationLoss = lossFunc(model(validationSet), validationLabels)			
+
 				predictionTime = TimerGet('predtime')[1] / sampleSize
-				validationLoss = sqrt(lossFunc(model(validationSet), validationLabels))
+				validationLoss = sqrt(validationLoss) if whichLossFunc == 'MSE' else validationLoss
 				hyperLoss 	   = hyperloss(HYPERLOSS_FUNCTION, predictionTime, validationLoss, maxLoss)
 								
 				TimerAddSave('analysis')
 				TimerInit('checktop')
-								
-				#if NetIsTopPerformer(hyperloss):
+		
+				if NetIsTopPerformer(hyperloss):
 
-				#	modelData = [shape, nodes, layer, activFunc]
-				#	modelPerformance = [trainingLossPlot, testLossPlot, predictionTime, validationLoss, hyperLoss]
+					modelData = [shape, nodes, layer, activFunc]
+					modelPerformance = [trainLossPlot, testLossPlot, predictionTime, validationLoss, hyperLoss]
 					
-				#	UpdateTopList(model, modelData, modelPerformance, searchParameter)
+					UpdateTopList(model, modelData, modelPerformance, searchParameter)
 					
 				TimerAddSave('checktop')
 								
@@ -151,7 +161,7 @@ for activFunc in activFuncRange:
 ##################### SAVE RESULTS ################################
 
 TimerInit('writetop')
-#WriteToplist()
+WriteToplist()
 TimerAddSave('writetop')
 
 ##################### TIME ANALYSIS ###############################

@@ -13,18 +13,57 @@ def GetExpRes(exp):
 	return database.getExpResults(analysisIDs = [exp])[0]
 
 
+def GetTopoMinMax(expres, topo):
+	
+	with open(expres.path + '/data/' + topo + '.txt') as f:
+		content = f.readlines()
+
+	content = [x.strip() for x in content]
+
+	x = []
+	found = False
+	for line in content:
+		if line[0:11] == 'upperLimits':
+			found = True
+			s = ''
+			for i in range(14, len(line)):
+				if line[i] != '[' and line[i] != '*':
+					s += line[i]
+				elif line[i] == '*':		
+					break
+			x.append(int(float(s)))
+
+		elif line[0:19] == 'expectedUpperLimits':
+			break
+
+		elif found:
+			s = ''
+			for i in range(0, len(line)):
+				if line[i] != '[' and line[i] != '*':
+					s += line[i]
+				elif line[i] == '*':
+					break
+			x.append(int(float(s)))
+
+	return min(x), max(x), 0
+
 def DataSimulate(exp, topo):
 
-    dataset = []
-    expres = GetExpRes(exp)
-    for mother in range(MOTHER_LOW, MOTHER_UP, MOTHER_STEP):
-        for lsp in range (LSP_LOW, mother, LSP_STEP): 
-            masses = [[ mother*GeV, lsp*GeV], [ mother*GeV, lsp*GeV]]
-            ul     = expres.getUpperLimitFor(txname=topo, mass=masses)
-            if type(ul) == type(None):
-                continue
-            dataset.append([mother, lsp, ul.asNumber(fb)])
-    return dataset
+	dataset = []
+	expres = GetExpRes(exp)
+	
+	motherLow, motherUp, daughterLow = GetTopoMinMax(expres, topo)
+
+	#print(motherLow, motherUp, daughterLow)
+
+	for mother in range(motherLow, motherUp, 10):
+		for lsp in range (daughterLow, mother, 10):
+			masses = [[ mother*GeV, lsp*GeV], [ mother*GeV, lsp*GeV]]
+			ul     = expres.getUpperLimitFor(txname=topo, mass=masses)
+			if type(ul) == type(None):
+				continue
+			dataset.append([mother, lsp, ul.asNumber(fb)])
+	return dataset
 
 
 def DataSplit(dataset, split):
@@ -52,63 +91,22 @@ class data(Dataset):
 def DataGeneratePackage(exp, topo, split, device):
 
 	dataset = DataSimulate(exp, topo)
-
-	list_training, list_validation, list_test = DataSplit(dataset, split)
-
-	d = data(list_training, device)
-	
-	tensor_training 	= torch.tensor(list_training, device=device)
-	tensor_test			= torch.tensor(list_test, device=device)
-	tensor_validation	= torch.tensor(list_validation, device=device)
-
-	data_trai_set		= tensor_training.narrow(1, 0, 2).to(device)
-	data_trai_lab		= tensor_training.narrow(1, 2, 1).to(device)
-
-	data_test_set		= tensor_test.narrow(1, 0, 2).to(device)
-	data_test_lab		= tensor_test.narrow(1, 2, 1).to(device)
-
-	data_vali_set		= tensor_validation.narrow(1, 0, 2).to(device)
-	data_vali_lab		= tensor_validation.narrow(1, 2, 1).to(device)
-	
-	var_training_set	  	 = Variable(tensor_training.narrow(1, 0, 2)).to(device)
-	var_training_labels	  	 = Variable(tensor_training.narrow(1, 2, 1)).to(device)
-	var_test_set 	 	 	 = Variable(tensor_test.narrow(1, 0, 2)).to(device)
-	var_test_labels 	  	 = Variable(tensor_test.narrow(1, 2, 1)).to(device)
-	var_validation_set	  	 = Variable(tensor_validation.narrow(1, 0, 2)).to(device)
-	var_validation_labels 	 = Variable(tensor_validation.narrow(1, 2, 1)).to(device)
+	training, validation, test = DataSplit(dataset, split)
+	datasetTraining = data(training, device)
 
 	GetDataObj = {}
 
-	GetDataObj['list_training']   		= list_training
-	GetDataObj['list_validation'] 		= list_validation
-	GetDataObj['list_test'] 	  		= list_test
-
-	GetDataObj['tensor_training']	  	= tensor_training
-	GetDataObj['tensor_validation']    	= tensor_validation
-	GetDataObj['tensor_test']	  	   	= tensor_test
-
-	GetDataObj['var_training_set']	 	= var_training_set
-	GetDataObj['var_validation_set']  	= var_validation_set
-	GetDataObj['var_test_set']	  	 	= var_test_set
-
-	GetDataObj['var_training_labels']	= var_training_labels
-	GetDataObj['var_validation_labels'] = var_validation_labels
-	GetDataObj['var_test_labels']	  	= var_test_labels
-
-	GetDataObj['data_trai_set']			= data_trai_set
-	GetDataObj['data_trai_lab']			= data_trai_lab
-
-	GetDataObj['data_test_set']			= data_test_set
-	GetDataObj['data_test_lab']			= data_test_lab
-
-	GetDataObj['data_vali_set']			= data_vali_set
-	GetDataObj['data_vali_lab']			= data_vali_lab
-
-	GetDataObj['d']						= d
+	GetDataObj['training_set']	 	= torch.tensor(training).narrow(1, 0, 2).to(device)
+	GetDataObj['training_labels']	= torch.tensor(training).narrow(1, 2, 1).to(device)
+	GetDataObj['test_set']	  	 	= torch.tensor(test).narrow(1, 0, 2).to(device)
+	GetDataObj['test_labels']	  	= torch.tensor(test).narrow(1, 2, 1).to(device)
+	GetDataObj['validation_set']  	= torch.tensor(validation).narrow(1, 0, 2).to(device)
+	GetDataObj['validation_labels'] = torch.tensor(validation).narrow(1, 2, 1).to(device)
+	GetDataObj['dataset']			= datasetTraining
 
 	return GetDataObj
 
 
 if __name__ == "__main__":
-	DataGeneratePackage(ANALYSIS_ID, TXNAME, [0.8, 0.1, 0.1], 'cpu')
-
+	analysisId, txName, split, device = 'CMS-PAS-SUS-12-026', 'T1tttt', [0.8, 0.1, 0.1], 'cpu'
+	DataGeneratePackage(analysisId, txName, split, device)

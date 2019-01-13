@@ -4,8 +4,8 @@ def GetNetConfigurationNum(searchRange):
 
 def LoadSearchRange():
 
-	layerMin, layerMax, layerStep  = 4, 4, 1
-	nodesMin, nodesMax, nodesStep  = 4, 4, 1
+	layerMin, layerMax, layerStep  = 1, 2, 1
+	nodesMin, nodesMax, nodesStep  = 2, 6, 2
 	shape	  					   = ['lin']
 	activationFunction 			   = ['rel']
 
@@ -27,7 +27,7 @@ def LoadSearchParameters():
 	searchParameter['lossFunction']	= 'MSE'
 	searchParameter['optimizer']	= 'Adam' #rmsprop
 
-	searchParameter['batchSize']	= 16 #1,2,4,8
+	searchParameter['batchSize']	= 4 #1,2,4,8
 	searchParameter['learningRate']	= 1e-3
 	searchParameter['dataSplit']    = [0.8, 0.1, 0.1]
 

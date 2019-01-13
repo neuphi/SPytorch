@@ -12,25 +12,10 @@ import system.pathfinder as path
 import os
 import matplotlib.pyplot as plt
 
-
 toplist = []
 
 
-def NetIsTopPerformer(hyperLoss):
-
-	global toplist
-
-	if len(toplist) < 10:
-		return True
-
-	for entry in toplist:
-		if hyperLoss > netdata["hloss"]:
-			return True
-
-	return False
-
-
-def UpdateToplist(model, modelData, modelPerformance, searchParameter):
+def UpdateTopList(model, modelData, modelPerformance, searchParameter):
 
 	global toplist
 
@@ -41,7 +26,17 @@ def UpdateToplist(model, modelData, modelPerformance, searchParameter):
 	else:
 		toplist[9] = newEntry
 
-	toplist = sorted(toplist, key = lambda data: data["hloss"])
+	toplist = sorted(toplist, key = lambda data: data[2][4])
+
+
+def NetIsTopPerformer(hyperLoss):
+
+	global toplist
+
+	if len(toplist) < 10 or hyperLoss < toplist[-1][2][4]:
+		return True
+
+	return False
 
 
 def GetTableHeader(desc):
@@ -57,18 +52,39 @@ def GetTableHeader(desc):
 
 def GetNetToString(entry):
 
-	s  = "# " + '{:^5d}'.format(entry["layer"]) + " | "
-	s += '{:^5d}'.format(entry["nodes"]) + " | "
-	s += '{:^11d}'.format(entry["nodto"]+1) + " | " # +1 to include output node
-	s += '{:^5}'.format(entry["activ"]) + " | "
-	s += '{:^5}'.format(entry["shape"]) + " | "
-	s += '{:^10d}'.format(entry["batch"]) + " | "
-	s += '{:^13.3e}'.format(entry["lrate"]) + " | "
-	s += '{:^9}'.format(entry["lossf"]) + " | "
-	s += '{:^5}'.format(entry["optim"]) + " | "
-	s += '{:^10.2f}'.format(entry["hloss"]) + " | "
-	s += '{:^10.2f}'.format(entry["lossv"]) + " | "
-	s += '{:^9.3e}'.format(entry["predt"]) + " | \n"
+	#modelData = [shape, nodes, layer, activFunc]
+	#modelPerformance = [trainLossPlot, testLossPlot, predictionTime, validationLoss, hyperLoss]
+	
+	#searchParameter 				= {}
+	#searchParameter['maxLoss'] 	 	= 5
+	#searchParameter['epochNum']		= 100
+	#searchParameter['sampleSize']	= 1000
+	#searchParameter['lossFunction']	= 'MSE'
+	#searchParameter['optimizer']	= 'Adam' #rmsprop
+
+	#searchParameter['batchSize']	= 32 #1,2,4,8
+	#searchParameter['learningRate']	= 1e-3
+	#searchParameter['dataSplit']    = [0.8, 0.1, 0.1]
+
+
+
+
+	modelData = entry[1]
+	modelPerformance = entry[2]
+	searchParameter = entry[3]
+
+	s  = "# " + '{:^5d}'.format(modelData[2]) + " | "
+	s += '{:^5d}'.format(modelData[1]) + " | "
+	s += '{:^11d}'.format(0) + " | " # +1 to include output node
+	s += '{:^5}'.format(modelData[3]) + " | "
+	s += '{:^5}'.format(modelData[0]) + " | "
+	s += '{:^10d}'.format(searchParameter["batchSize"]) + " | "
+	s += '{:^13.3e}'.format(searchParameter['learningRate']) + " | "
+	s += '{:^9}'.format(searchParameter["lossFunction"]) + " | "
+	s += '{:^5}'.format(searchParameter["optimizer"]) + " | "
+	s += '{:^10.2f}'.format(modelPerformance[4]) + " | " 	#hyperloss
+	s += '{:^10.2f}'.format(modelPerformance[3]) + " | " 	#lossvalue
+	s += '{:^9.3e}'.format(modelPerformance[2]) + " | \n"	#predTime
 	return s
 
 def GetTableBottom():
@@ -83,7 +99,7 @@ def StoreNetData(anadir, entry):
 	global toplist
 	
 	j = toplist.index(entry) + 1
-	mod = entry['model']
+	mod = entry[0]
 
 	# MAKE DIR
 
@@ -98,11 +114,13 @@ def StoreNetData(anadir, entry):
 	torch.save(mod.state_dict(), netdir + "/net{}.h5".format(j))
 
 	# CREATE PLOT
+
+	modelPerformance = entry[2]
 	
-	epnum 		= len(entry["plytr"])
+	epnum 		= len(modelPerformance[0])
 	x_axis     	= [i for i in range(epnum)]
-	y_axis_trn 	= entry["plytr"]
-	y_axis_val 	= entry["plyte"]
+	y_axis_trn 	= modelPerformance[0]
+	y_axis_tst 	= modelPerformance[1]
 
 	plt.clf()
 	plt.figure(j)
@@ -110,7 +128,7 @@ def StoreNetData(anadir, entry):
 	plt.xlabel('Epochs')
 	plt.ylabel('Error')
 	plt.plot(x_axis, y_axis_trn, label = 'Train Loss')
-	plt.plot(x_axis, y_axis_val, label = 'Test Loss')
+	plt.plot(x_axis, y_axis_tst, label = 'Test Loss')
 	plt.legend()
 	plt.savefig(netdir + "/loss{}.eps".format(j), format = 'eps')
 	
@@ -122,7 +140,10 @@ def StoreNetData(anadir, entry):
 		f.write(GetTableBottom())
 		f.write("#\n#\n# Raw Loss Plot Data:\n\n")
 		for i in range(epnum):
-			f.write(str(y_axis_trn[i]) + "," + str(y_axis_val[i]) + "\n")
+			f.write(str(y_axis_trn[i]) + "," + str(y_axis_tst[i]) + "\n")
+
+
+
 
 def WriteToplist():
 
@@ -140,7 +161,7 @@ def WriteToplist():
 	# WRITE TOPLIST
 
 	with open(anadir + '/toplist.txt', 'w') as f:
-		f.write(GetTableHeader("Top 10 Performing Models:"))
+		f.write(GetTableHeader("Top {} Performing Models:".format(len(toplist))))
 		for entry in toplist:
 			f.write(GetNetToString(entry))	
 		f.write(GetTableBottom())
@@ -159,31 +180,32 @@ def WriteToplist():
 
 if __name__ == "__main__":
 
-	import initnet	
-	import random
+	print('test')
+	#import initnet	
+	#import random
 
-	LEN_TEST_SET, LEN_TRAINING_SET, LEN_VALIDATION_SET = 80, 10, 10
+	#LEN_TEST_SET, LEN_TRAINING_SET, LEN_VALIDATION_SET = 80, 10, 10
 	
-	act = ["lin", "rel"]
-	shp = ["lin", "ramp", "trap"]
+	#act = ["lin", "rel"]
+	#shp = ["lin", "ramp", "trap"]
 
-	for i in range(20):
+	#for i in range(20):
 
-		a = act[random.randrange(2)]
-		s = shp[random.randrange(3)]
-		l = random.randrange(2,20)
-		n = random.randrange(l,20)
-		h = random.random() * 100.
+	#	a = act[random.randrange(2)]
+	#	s = shp[random.randrange(3)]
+	#	l = random.randrange(2,20)
+	#	n = random.randrange(l,20)
+	#	h = random.random() * 100.
 
-		pt = [random.random() for i in range(100)]
-		pv = [random.random() for i in range(100)]
+	#	pt = [random.random() for i in range(100)]
+	#	pv = [random.random() for i in range(100)]
 
-		netdata = initnet.CreateNet(l, n, a, s, "mse", "adam", 16, 1e-3)
-		netdata["hloss"] = h
-		netdata["plytr"] = pt
-		netdata["plyte"] = pv		
+	#	netdata = initnet.CreateNet(l, n, a, s, "mse", "adam", 16, 1e-3)
+	#	netdata["hloss"] = h
+	#	netdata["plytr"] = pt
+	#	netdata["plyte"] = pv		
 
-		if NetIsTopPerformer(netdata):
-			UpdateToplist(netdata)
+	#	if NetIsTopPerformer(netdata):
+	#		UpdateToplist(netdata)
 
-	WriteToplist()
+	#WriteToplist()
