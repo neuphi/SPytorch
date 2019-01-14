@@ -24,8 +24,8 @@ TimerInit('total')
 
 print("Initiating grid search\n")
 
-#analysisId	 = 'CMS-PAS-SUS-12-026'
-analysisId	 = 'CMS-PAS-SUS-13-016'
+analysisId	 = 'CMS-PAS-SUS-12-026'
+#analysisId	 = 'CMS-PAS-SUS-13-016'
 txName		 = 'T1tttt'
 
 device 			= setDevice()
@@ -84,7 +84,7 @@ for activFunc in activFuncRange:
 
 				TimerInit('prepnet')
 					
-				model = CreateNet(shape, nodes, layer, activFunc).to(device)
+				model = CreateNet(shape, nodes, layer, activFunc).to(device)#.train()
 				
 				if whichOptimizer == 'Adam':
 					optimizer = torch.optim.Adam(model.parameters(), lr=learningRate)#.to(device)
@@ -104,8 +104,8 @@ for activFunc in activFuncRange:
 
 					for i, data in enumerate(trainloader):  
 
-						inputs = data[0]
-						labels = data[1]
+						inputs = data[0]#.to(device)
+						labels = data[1]#.to(device)
 
 						loss = lossFunc(model(inputs), labels)
 
