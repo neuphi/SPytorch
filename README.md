@@ -5,19 +5,21 @@
 == Project ==
 
  * Diploma thesis, started dec 1st, 2018
- * goal: implement NN to substitute getUpperLimit(*args)
- * goal: implement a few ATLAS analyses
+ 
+ * goal: expand the .getUpperLimitFor(*args) functionality of expResultObj by providing an MLP network prediction option
+         for each topology and experimental result
+ * goal: implement a few ATLAS analyses to test the networks
 
 == TODO ==
   
- * test NN for various topologies and experimental results
- * figure out why cuda is 2-3x slower than cpu
+ * figure out where and how to save weights and shape (.h5 file - multiple topologies per file?)
+ * find an already existing method to efficiently read database Tx<Name>.txt files
+ * improve search algorithm runtime (figure out why cuda is 2-3x slower than cpu)
+ * test out various methods of weight initialization (JKU)
+ * expand the search algorithm to fully supply all topologies and results
+ * implement the first prototype into SModelS
 
 == Done ==
 
- * write efficient grid search algorithm
-
- * Implemented ATLAS-SUSY-2016-19 - confirmed.
- * Implemented ATLAS-SUSY-2016-33 - confirmed.
- * Implemented ATLAS-SUSY-2016-26 - confirmed.
- * Implemented ATLAS-SUSY-2017-03 - confirmed.
+ * expand existing grid search algorithm to support
+ * split gridsearch into seperate algorithms for searchparameter and netparameter
