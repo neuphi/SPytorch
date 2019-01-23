@@ -7,7 +7,6 @@
  * Diploma thesis, started dec 1st, 2018
  
  * goal: expand the .getUpperLimitFor(*args) functionality of expResultObj by providing an MLP network prediction option
-         for each topology and experimental result
  * goal: implement a few ATLAS analyses to test the networks
 
 == TODO ==
