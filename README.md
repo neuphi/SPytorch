@@ -12,7 +12,7 @@
 == TODO ==
   
  * figure out where and how to save weights and shape (.h5 file - multiple topologies per file?)
- * find an already existing method to efficiently read database Tx<Name>.txt files
+ * find an already existing method to efficiently read database TxName.txt files
  * improve search algorithm runtime (figure out why cuda is 2-3x slower than cpu)
  * test out various methods of weight initialization (JKU)
  * expand the search algorithm to fully supply all topologies and results
