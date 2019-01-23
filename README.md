@@ -15,7 +15,7 @@
  * find an already existing method to efficiently read database TxName.txt files
  * improve search algorithm runtime (figure out why cuda is 2-3x slower than cpu)
  * test out various methods of weight initialization (JKU)
- * expand the search algorithm to fully supply all topologies and results
+ * expand the search algorithm to fully support all topologies and results
  * implement the first prototype into SModelS
 
 == Done ==
