@@ -20,5 +20,5 @@
 
 == Done ==
 
- * expand existing grid search algorithm to support
+ * expand existing grid search algorithm to support multiple topologies and compare results
  * split gridsearch into seperate algorithms for searchparameter and netparameter
