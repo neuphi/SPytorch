@@ -22,11 +22,11 @@ TimerInit('total')
 
 ##################### INITIALIZATION #################################
 
-print("Initiating grid search\n")
-
 #analysisId	 = 'CMS-PAS-SUS-12-026'
-analysisId	 = 'CMS-PAS-SUS-13-016'
+analysisId	 = 'CMS-PAS-SUS-12-026'
 txName		 = 'T1tttt'
+
+print("\n\n\tStarting new grid search\n\t________________\n\tanalysis: {}\n\ttopology: {}\n\n".format(analysisId, txName))
 
 device 			= setDevice()
 searchParameter = LoadSearchParameters()
@@ -52,7 +52,7 @@ activFuncRange  = searchRange['activFunc']
 ######################## GENERATE DATA ################################
 
 TimerInit('gendata')
-print("\nGenerate data .. ", end = "", flush = True)
+print("\nGenerating data .. ", end = "", flush = True)
 
 GetDataObj = DataGeneratePackage(analysisId, txName, dataSplit, device)
 
