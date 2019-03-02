@@ -142,6 +142,18 @@ def StoreNetData(anadir, entry):
 		for i in range(epnum):
 			f.write(str(y_axis_trn[i]) + "," + str(y_axis_tst[i]) + "\n")
 
+	# SAVE ACTUAL MODEL
+
+	if j == 1:
+		
+		savedir = path.netstorage + ANALYSIS_ID + '/'
+
+		if not os.path.exists(savedir):
+			os.makedirs(savedir)
+
+		torch.save(mod, savedir + TXNAME + '.pth')
+
+
 
 
 

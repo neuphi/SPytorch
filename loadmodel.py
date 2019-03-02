@@ -1,39 +1,40 @@
-from math import sqrt as sqrt
-
-from system.misc import *
+import os
+from smodels.experiment.databaseObj import Database
+from smodels.tools.physicsUnits import GeV, fb
 from system.initnet import *
-from system.printtorch import *
-from system.dataset_new import *
-from system.parameters import *
-
+from system.dataset import *
 import system.pathfinder as path
 
-exp, topo = "CMS-PAS-SUS-12-026", "T1tttt"#"CMS-PAS-SUS-13-018", "T2bb"
-#exp, topo = ANALYSIS_ID, TXNAME
+def getUpperLimit(expres, topo, masses, predict):
 
-GetDataObj 	= DataGeneratePackage(exp, topo, [0.8,0.1,0.1], 'cpu')
+	netFile = path.netstorage + expres.id() + '/' + topo + '.pth'
 
-GridParameter = LoadParameters()
+	if predict and os.path.isfile(netFile):
 
-loss_fn 	= GridParameter['loss_func'][0]
-optimizer	= GridParameter['optimizer'][0]
-minibatch 	= GridParameter['minibatch'][0]
-learn_rate	= GridParameter['lera_iter'][0]
-activ 		= GridParameter['acti_func'][0]
-shape 		= GridParameter['nodes_shape'][0]
-layers 		= GridParameter['layer_iter'][0]
-nodes 		= GridParameter['nodes_iter'][0]
+		model = torch.load(netFile)
+		#model.eval()
 
-netdata = CreateNet(layers, nodes, activ, shape, loss_fn, optimizer, minibatch, learn_rate)
-netdata['model'].load_state_dict(torch.load(path.topology + TXNAME + "/1/net1.h5"))
-netdata['model'].eval()
+		ult = model(torch.tensor(masses))
+		return [round(sub.item(),3) for sub in ult][0]
+	else:
+		return round(expres.getUpperLimitFor(txname=topo, mass=masses).asNumber(fb), 3)
+
+	return 0
 
 
+if __name__ == "__main__":
 
-loss_fn = nn.MSELoss(reduction = 'elementwise_mean')#.to(device)
-loss = loss_fn(netdata['model'](GetDataObj['var_training_set']), GetDataObj['var_training_labels'])
+	exp    = 'CMS-PAS-SUS-12-026'
+	topo   = 'T1tttt'
 
-print(sqrt(loss.item()))
+	expres = GetExpRes(exp)
+	masses = [[ 800., 150.], [ 800., 150.]]
+	
+	ulp = getUpperLimit(expres, topo, masses, True)
+	uli = getUpperLimit(expres, topo, masses, False)
+	print('predicted:', ulp, '\ninterpol:', uli, '\nerror:', round(abs(1.- ulp/uli)*100.,3), '%')
 
-
+#if neural net found, automatically use, else interpolate
+#expand nn to 4(+4) input parameter for both branches?
+#how to handle unum (GeV, fb) -> convert back from *GeV to simple float in getUpperLimit method?
 

@@ -4,7 +4,7 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
 from system.glovar import *
 from system.errorlog import *
-
+from random import shuffle
 import system.pathfinder as path
 
 def GetExpRes(exp):
@@ -63,6 +63,8 @@ def DataSimulate(exp, topo):
 			if type(ul) == type(None):
 				continue
 			dataset.append([mother, lsp, ul.asNumber(fb)])
+
+	shuffle(dataset)
 	return dataset
 
 

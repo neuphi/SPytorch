@@ -95,7 +95,10 @@ class Net(nn.Module):
 				self.seq.add_module('lin{}'.format(i),nn.Linear(nin,nout))
 
 				if i != lastLayer:
-					self.seq.add_module('sig{}'.format(i), nn.Sigmoid())           
+					self.seq.add_module('sig{}'.format(i), nn.Sigmoid())   
+    
+		#print(self.seq)
+		#nn.init.xavier_normal_(self.seq)
                  
 
 	def forward(self, x):
@@ -103,13 +106,14 @@ class Net(nn.Module):
 		x = self.seq(x)
 		return x
 
+
 def CreateNet(shape, nodes, layer, activFunc):
 
 	netshape, nodesTotal = getNodesPerLayer(shape, nodes, layer)
 	model = Net(netshape, activFunc)
 	
-	#return [model, nodesTotal]
 	return model
+
 
 def LoadNet(params):
 

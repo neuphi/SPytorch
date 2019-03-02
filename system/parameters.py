@@ -7,7 +7,7 @@ def LoadSearchRange():
 	layerMin, layerMax, layerStep  = 8, 8, 1
 	nodesMin, nodesMax, nodesStep  = 4, 4, 1
 	shape	  					   = ['lin']
-	activationFunction 			   = ['rel']
+	activationFunction 			   = ['lin']
 
 	searchRange 			 = {}
 	searchRange['layer'] 	 = range(layerMin, layerMax+1, layerStep)
@@ -27,7 +27,7 @@ def LoadSearchParameters():
 	searchParameter['lossFunction']	= 'MSE'
 	searchParameter['optimizer']	= 'Adam' #rmsprop
 
-	searchParameter['batchSize']	= 4 #1,2,4,8
+	searchParameter['batchSize']	= 8 #1,2,4,8
 	searchParameter['learningRate']	= 1e-3
 	searchParameter['dataSplit']    = [0.8, 0.1, 0.1]
 

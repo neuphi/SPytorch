@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 ####################### IMPORT STUFF ############################
 
+import copy
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 from torch.utils.data import DataLoader as DataLoader
@@ -97,8 +98,9 @@ for activFunc in activFuncRange:
 				TimerAddSave('prepnet')
 				TimerInit('train')
 
-				#lowestLoss = 99.
-				#bestModel  = model
+				bestLoss  = 10000.
+				bestEpoch = 0
+				bestModel = copy.deepcopy(model)
 
 				for epoch in range(epochNum):
 
@@ -107,6 +109,7 @@ for activFunc in activFuncRange:
 						inputs = data[0]
 						labels = data[1]
 
+						#print(inputs)
 						loss = lossFunc(model(inputs), labels)
 
 						optimizer.zero_grad()
@@ -121,15 +124,16 @@ for activFunc in activFuncRange:
 					trainLossPlot.append(sqrt(trainLoss) if whichLossFunc == 'MSE' else trainLoss)
 					testLossPlot.append(sqrt(testLoss) if whichLossFunc == 'MSE' else testLoss)
 
-					#if testLoss < lowestLoss:
-					#	lowestLoss = testLoss
-					#	bestModel  = model .save_dict() ?
+					if testLoss < bestLoss:
+						bestLoss  = testLoss
+						bestModel = copy.deepcopy(model)
+						bestEpoch = epoch+1
 
 					cycl = 100.*progressCurrent/progressTotal
 					time = TimerGet('total')[0] * (progressTotal/progressCurrent - 1.)
 					
-					print("\rNet %d of %d - Estimated progress: %d%% (+%ds) - Training epoch %d / %d        " % (netCurrent, netTotal, cycl, time, epoch, epochNum), end = '', flush = True)
-					
+					print("\rNet %d of %d - Estimated progress: %d%% (+%ds) - Training epoch %d / %d        " % (netCurrent, netTotal, cycl, time, epoch+1, epochNum), end = '', flush = True)
+				
 				TimerAddSave('train')      
 				TimerInit('analysis')
 				TimerInit('predtime')
@@ -138,21 +142,21 @@ for activFunc in activFuncRange:
 					model(validationSet)
 				TimerAddSave('predtime')
 
-				validationLoss = lossFunc(model(validationSet), validationLabels)			
+				validationLoss = lossFunc(bestModel(validationSet), validationLabels)			
 
 				predictionTime = TimerGet('predtime')[1] / sampleSize
 				validationLoss = sqrt(validationLoss) if whichLossFunc == 'MSE' else validationLoss
 				hyperLoss 	   = hyperloss(HYPERLOSS_FUNCTION, predictionTime, validationLoss, maxLoss)
-								
+
 				TimerAddSave('analysis')
 				TimerInit('checktop')
-		
+
 				if NetIsTopPerformer(hyperloss):
 
 					modelData = [shape, nodes, layer, activFunc]
 					modelPerformance = [trainLossPlot, testLossPlot, predictionTime, validationLoss, hyperLoss]
 					
-					UpdateTopList(model, modelData, modelPerformance, searchParameter)
+					UpdateTopList(bestModel, modelData, modelPerformance, searchParameter)
 					
 				TimerAddSave('checktop')
 								
