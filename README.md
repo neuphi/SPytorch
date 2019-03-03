@@ -11,6 +11,7 @@
 
 == TODO ==
   
+ * how to find and properly import smodels from within utils
  * store nn folder in smodels or utils?
  * if neural net found, automatically use, else interpolate?
  * expand nn to 4(+4) input parameter for both branches?
