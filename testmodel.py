@@ -32,7 +32,7 @@ if __name__ == "__main__":
 	
 	ulp = getUpperLimit(expres, topo, masses, True)
 	uli = getUpperLimit(expres, topo, masses, False)
-	print('predicted:', ulp, '\ninterpol:', uli, '\nerror:', round(abs(1.- ulp/uli)*100.,3), '%')
+	print('predicted:', ulp*fb, '\ninterpol:', uli*fb, '\nerror:', round(abs(1.- ulp/uli)*100.,3), '%')
 
 #if neural net found, automatically use, else interpolate
 #expand nn to 4(+4) input parameter for both branches?
