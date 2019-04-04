@@ -54,7 +54,7 @@ def DataSimulate(exp, topo):
 	
 	motherLow, motherUp, daughterLow = GetTopoMinMax(expres, topo)
 
-	#print(motherLow, motherUp, daughterLow)
+	print('data boundaries:', motherLow, motherUp, daughterLow)
 
 	for mother in range(motherLow, motherUp, 10):
 		for lsp in range (daughterLow, mother, 10):

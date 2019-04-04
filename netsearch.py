@@ -23,8 +23,15 @@ TimerInit('total')
 
 ##################### INITIALIZATION #################################
 
+<<<<<<< HEAD
 #analysisId	 = 'CMS-PAS-SUS-12-026'
 analysisId	 = 'CMS-PAS-SUS-12-026'
+=======
+print("Initiating grid search\n")
+
+analysisId	 = 'CMS-PAS-SUS-12-026'
+#analysisId	 = 'CMS-PAS-SUS-13-016'
+>>>>>>> 8c4872d6a4b92828d2e63d2d0b5c802e3500e0ec
 txName		 = 'T1tttt'
 
 print("\n\n\tStarting new grid search\n\t________________\n\tanalysis: {}\n\ttopology: {}\n\n".format(analysisId, txName))
@@ -85,7 +92,7 @@ for activFunc in activFuncRange:
 
 				TimerInit('prepnet')
 					
-				model = CreateNet(shape, nodes, layer, activFunc).to(device)
+				model = CreateNet(shape, nodes, layer, activFunc).to(device)#.train()
 				
 				if whichOptimizer == 'Adam':
 					optimizer = torch.optim.Adam(model.parameters(), lr=learningRate)#.to(device)
@@ -106,8 +113,8 @@ for activFunc in activFuncRange:
 
 					for i, data in enumerate(trainloader):  
 
-						inputs = data[0]
-						labels = data[1]
+						inputs = data[0]#.to(device)
+						labels = data[1]#.to(device)
 
 						#print(inputs)
 						loss = lossFunc(model(inputs), labels)

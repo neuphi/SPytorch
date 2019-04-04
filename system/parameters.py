@@ -4,8 +4,13 @@ def GetNetConfigurationNum(searchRange):
 
 def LoadSearchRange():
 
+<<<<<<< HEAD
 	layerMin, layerMax, layerStep  = 8, 8, 1
 	nodesMin, nodesMax, nodesStep  = 4, 4, 1
+=======
+	layerMin, layerMax, layerStep  = 2, 3, 1
+	nodesMin, nodesMax, nodesStep  = 2, 6, 2
+>>>>>>> 8c4872d6a4b92828d2e63d2d0b5c802e3500e0ec
 	shape	  					   = ['lin']
 	activationFunction 			   = ['lin']
 
